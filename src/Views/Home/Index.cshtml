@@ -1,0 +1,342 @@
+@model DashboardSummary
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@{
+    string Card(string label, string action, string icon, string colorVar, int count, string unit)
+    {
+        var err = count < 0;
+        var val = err ? "ERR" : count.ToString();
+        var cls = err ? "error" : "";
+        return $@"<a href=""/Services/{action}"" class=""stat-card"">
+  <div class=""stat-header""><span class=""stat-label"">{label}</span><span class=""stat-icon"" style=""color:{colorVar}"">{icon}</span></div>
+  <div class=""stat-value {cls}"">{val}</div>
+  <span class=""text-dim text-sm"">{unit}</span>
+  <span class=""stat-accent"" style=""background:{colorVar}""></span>
+</a>";
+    }
+}
+
+<div class="section-title">STORAGE &amp; DATA</div>
+<div class="stats-grid">
+    <a asp-controller="Services" asp-action="S3" class="stat-card">
+        <div class="stat-header"><span class="stat-label">S3</span><span class="stat-icon" style="color:var(--s3)">▣</span></div>
+        <div class="stat-value @(Model.S3Buckets < 0 ? "error" : "")">@(Model.S3Buckets < 0 ? "ERR" : Model.S3Buckets.ToString())</div>
+        <span class="text-dim text-sm">Buckets</span><span class="stat-accent" style="background:var(--s3)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="DynamoDB" class="stat-card">
+        <div class="stat-header"><span class="stat-label">DynamoDB</span><span class="stat-icon" style="color:var(--dynamo)">⬡</span></div>
+        <div class="stat-value @(Model.DynamoTables < 0 ? "error" : "")">@(Model.DynamoTables < 0 ? "ERR" : Model.DynamoTables.ToString())</div>
+        <span class="text-dim text-sm">Tables</span><span class="stat-accent" style="background:var(--dynamo)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="RDS" class="stat-card">
+        <div class="stat-header"><span class="stat-label">RDS</span><span class="stat-icon" style="color:#4ecdc4">⊞</span></div>
+        <div class="stat-value @(Model.RdsInstances < 0 ? "error" : "")">@(Model.RdsInstances < 0 ? "ERR" : Model.RdsInstances.ToString())</div>
+        <span class="text-dim text-sm">Instances</span><span class="stat-accent" style="background:#4ecdc4"></span>
+    </a>
+    <a asp-controller="Services" asp-action="ElastiCache" class="stat-card">
+        <div class="stat-header"><span class="stat-label">ElastiCache</span><span class="stat-icon" style="color:#c05de9">⊡</span></div>
+        <div class="stat-value @(Model.ElastiCacheClusters < 0 ? "error" : "")">@(Model.ElastiCacheClusters < 0 ? "ERR" : Model.ElastiCacheClusters.ToString())</div>
+        <span class="text-dim text-sm">Clusters</span><span class="stat-accent" style="background:#c05de9"></span>
+    </a>
+    <a asp-controller="Services" asp-action="OpenSearch" class="stat-card">
+        <div class="stat-header"><span class="stat-label">OpenSearch</span><span class="stat-icon" style="color:#ffd93d">⊛</span></div>
+        <div class="stat-value @(Model.OpenSearchDomains < 0 ? "error" : "")">@(Model.OpenSearchDomains < 0 ? "ERR" : Model.OpenSearchDomains.ToString())</div>
+        <span class="text-dim text-sm">Domains</span><span class="stat-accent" style="background:#ffd93d"></span>
+    </a>
+    <a asp-controller="Services" asp-action="Backup" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Backup</span><span class="stat-icon" style="color:#ff6b6b">⊕</span></div>
+        <div class="stat-value @(Model.BackupVaults < 0 ? "error" : "")">@(Model.BackupVaults < 0 ? "ERR" : Model.BackupVaults.ToString())</div>
+        <span class="text-dim text-sm">Vaults</span><span class="stat-accent" style="background:#ff6b6b"></span>
+    </a>
+</div>
+
+<div class="section-title">MESSAGING &amp; EVENTS</div>
+<div class="stats-grid">
+    <a asp-controller="Services" asp-action="SQS" class="stat-card">
+        <div class="stat-header"><span class="stat-label">SQS</span><span class="stat-icon" style="color:var(--sqs)">⇆</span></div>
+        <div class="stat-value @(Model.SqsQueues < 0 ? "error" : "")">@(Model.SqsQueues < 0 ? "ERR" : Model.SqsQueues.ToString())</div>
+        <span class="text-dim text-sm">Queues</span><span class="stat-accent" style="background:var(--sqs)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="SNS" class="stat-card">
+        <div class="stat-header"><span class="stat-label">SNS</span><span class="stat-icon" style="color:var(--sns)">⊕</span></div>
+        <div class="stat-value @(Model.SnsTopics < 0 ? "error" : "")">@(Model.SnsTopics < 0 ? "ERR" : Model.SnsTopics.ToString())</div>
+        <span class="text-dim text-sm">Topics</span><span class="stat-accent" style="background:var(--sns)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="Kinesis" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Kinesis</span><span class="stat-icon" style="color:#ff6b6b">≋</span></div>
+        <div class="stat-value @(Model.KinesisStreams < 0 ? "error" : "")">@(Model.KinesisStreams < 0 ? "ERR" : Model.KinesisStreams.ToString())</div>
+        <span class="text-dim text-sm">Streams</span><span class="stat-accent" style="background:#ff6b6b"></span>
+    </a>
+    <a asp-controller="Services" asp-action="Firehose" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Firehose</span><span class="stat-icon" style="color:#ff9f43">⊳</span></div>
+        <div class="stat-value @(Model.FirehoseStreams < 0 ? "error" : "")">@(Model.FirehoseStreams < 0 ? "ERR" : Model.FirehoseStreams.ToString())</div>
+        <span class="text-dim text-sm">Delivery Streams</span><span class="stat-accent" style="background:#ff9f43"></span>
+    </a>
+    <a asp-controller="Services" asp-action="SES" class="stat-card">
+        <div class="stat-header"><span class="stat-label">SES</span><span class="stat-icon" style="color:#54a0ff">✉</span></div>
+        <div class="stat-value @(Model.SesIdentities < 0 ? "error" : "")">@(Model.SesIdentities < 0 ? "ERR" : Model.SesIdentities.ToString())</div>
+        <span class="text-dim text-sm">Identities</span><span class="stat-accent" style="background:#54a0ff"></span>
+    </a>
+    <a asp-controller="Services" asp-action="EventBridge" class="stat-card">
+        <div class="stat-header"><span class="stat-label">EventBridge</span><span class="stat-icon" style="color:#ff6b9d">⚡</span></div>
+        <div class="stat-value @(Model.EventBridgeBuses < 0 ? "error" : "")">@(Model.EventBridgeBuses < 0 ? "ERR" : Model.EventBridgeBuses.ToString())</div>
+        <span class="text-dim text-sm">Event Buses</span><span class="stat-accent" style="background:#ff6b9d"></span>
+    </a>
+    <a asp-controller="Services" asp-action="Scheduler" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Scheduler</span><span class="stat-icon" style="color:#c7ecee">⏱</span></div>
+        <div class="stat-value @(Model.SchedulerSchedules < 0 ? "error" : "")">@(Model.SchedulerSchedules < 0 ? "ERR" : Model.SchedulerSchedules.ToString())</div>
+        <span class="text-dim text-sm">Schedules</span><span class="stat-accent" style="background:#c7ecee"></span>
+    </a>
+</div>
+
+<div class="section-title">COMPUTE</div>
+<div class="stats-grid">
+    <a asp-controller="Services" asp-action="Lambda" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Lambda</span><span class="stat-icon" style="color:var(--lambda)">λ</span></div>
+        <div class="stat-value @(Model.LambdaFunctions < 0 ? "error" : "")">@(Model.LambdaFunctions < 0 ? "ERR" : Model.LambdaFunctions.ToString())</div>
+        <span class="text-dim text-sm">Functions</span><span class="stat-accent" style="background:var(--lambda)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="ECS" class="stat-card">
+        <div class="stat-header"><span class="stat-label">ECS</span><span class="stat-icon" style="color:#48dbfb">⊞</span></div>
+        <div class="stat-value @(Model.EcsClusters < 0 ? "error" : "")">@(Model.EcsClusters < 0 ? "ERR" : Model.EcsClusters.ToString())</div>
+        <span class="text-dim text-sm">Clusters</span><span class="stat-accent" style="background:#48dbfb"></span>
+    </a>
+    <a asp-controller="Services" asp-action="ECR" class="stat-card">
+        <div class="stat-header"><span class="stat-label">ECR</span><span class="stat-icon" style="color:#ff9f43">⊡</span></div>
+        <div class="stat-value @(Model.EcrRepositories < 0 ? "error" : "")">@(Model.EcrRepositories < 0 ? "ERR" : Model.EcrRepositories.ToString())</div>
+        <span class="text-dim text-sm">Repositories</span><span class="stat-accent" style="background:#ff9f43"></span>
+    </a>
+    <a asp-controller="Services" asp-action="StepFunctions" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Step Functions</span><span class="stat-icon" style="color:#fd79a8">⊸</span></div>
+        <div class="stat-value @(Model.StepFunctionStateMachines < 0 ? "error" : "")">@(Model.StepFunctionStateMachines < 0 ? "ERR" : Model.StepFunctionStateMachines.ToString())</div>
+        <span class="text-dim text-sm">State Machines</span><span class="stat-accent" style="background:#fd79a8"></span>
+    </a>
+    <a asp-controller="Services" asp-action="ELB" class="stat-card">
+        <div class="stat-header"><span class="stat-label">ELB v2</span><span class="stat-icon" style="color:#6c5ce7">⊴</span></div>
+        <div class="stat-value @(Model.ElbLoadBalancers < 0 ? "error" : "")">@(Model.ElbLoadBalancers < 0 ? "ERR" : Model.ElbLoadBalancers.ToString())</div>
+        <span class="text-dim text-sm">Load Balancers</span><span class="stat-accent" style="background:#6c5ce7"></span>
+    </a>
+    <a asp-controller="Services" asp-action="AutoScaling" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Auto Scaling</span><span class="stat-icon" style="color:#00b894">↕</span></div>
+        <div class="stat-value @(Model.AutoScalingGroups < 0 ? "error" : "")">@(Model.AutoScalingGroups < 0 ? "ERR" : Model.AutoScalingGroups.ToString())</div>
+        <span class="text-dim text-sm">Groups</span><span class="stat-accent" style="background:#00b894"></span>
+    </a>
+</div>
+
+<div class="section-title">SECURITY &amp; IDENTITY</div>
+<div class="stats-grid">
+    <a asp-controller="Services" asp-action="KMS" class="stat-card">
+        <div class="stat-header"><span class="stat-label">KMS</span><span class="stat-icon" style="color:var(--kms)">⚿</span></div>
+        <div class="stat-value @(Model.KmsKeys < 0 ? "error" : "")">@(Model.KmsKeys < 0 ? "ERR" : Model.KmsKeys.ToString())</div>
+        <span class="text-dim text-sm">Keys</span><span class="stat-accent" style="background:var(--kms)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="IAM" class="stat-card">
+        <div class="stat-header"><span class="stat-label">IAM</span><span class="stat-icon" style="color:var(--iam)">👤</span></div>
+        <div class="stat-value @(Model.IamUsers < 0 ? "error" : "")">@(Model.IamUsers < 0 ? "ERR" : Model.IamUsers.ToString())</div>
+        <span class="text-dim text-sm">Users</span><span class="stat-accent" style="background:var(--iam)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="Cognito" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Cognito</span><span class="stat-icon" style="color:#a29bfe">⊘</span></div>
+        <div class="stat-value @(Model.CognitoUserPools < 0 ? "error" : "")">@(Model.CognitoUserPools < 0 ? "ERR" : Model.CognitoUserPools.ToString())</div>
+        <span class="text-dim text-sm">User Pools</span><span class="stat-accent" style="background:#a29bfe"></span>
+    </a>
+    <a asp-controller="Services" asp-action="SecretsManager" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Secrets Manager</span><span class="stat-icon" style="color:#fd79a8">🔐</span></div>
+        <div class="stat-value @(Model.SecretsCount < 0 ? "error" : "")">@(Model.SecretsCount < 0 ? "ERR" : Model.SecretsCount.ToString())</div>
+        <span class="text-dim text-sm">Secrets</span><span class="stat-accent" style="background:#fd79a8"></span>
+    </a>
+</div>
+
+<div class="section-title">MANAGEMENT</div>
+<div class="stats-grid">
+    <a asp-controller="Services" asp-action="SSM" class="stat-card">
+        <div class="stat-header"><span class="stat-label">SSM</span><span class="stat-icon" style="color:var(--ssm)">⚙</span></div>
+        <div class="stat-value @(Model.SsmParameters < 0 ? "error" : "")">@(Model.SsmParameters < 0 ? "ERR" : Model.SsmParameters.ToString())</div>
+        <span class="text-dim text-sm">Parameters</span><span class="stat-accent" style="background:var(--ssm)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="CloudFormation" class="stat-card">
+        <div class="stat-header"><span class="stat-label">CloudFormation</span><span class="stat-icon" style="color:#e17055">⊞</span></div>
+        <div class="stat-value @(Model.CloudFormationStacks < 0 ? "error" : "")">@(Model.CloudFormationStacks < 0 ? "ERR" : Model.CloudFormationStacks.ToString())</div>
+        <span class="text-dim text-sm">Stacks</span><span class="stat-accent" style="background:#e17055"></span>
+    </a>
+    <a asp-controller="Services" asp-action="CloudWatch" class="stat-card">
+        <div class="stat-header"><span class="stat-label">CloudWatch</span><span class="stat-icon" style="color:#fdcb6e">📊</span></div>
+        <div class="stat-value @(Model.CloudWatchAlarms < 0 ? "error" : "")">@(Model.CloudWatchAlarms < 0 ? "ERR" : Model.CloudWatchAlarms.ToString())</div>
+        <span class="text-dim text-sm">Alarms</span><span class="stat-accent" style="background:#fdcb6e"></span>
+    </a>
+    <a asp-controller="Services" asp-action="AppConfig" class="stat-card">
+        <div class="stat-header"><span class="stat-label">AppConfig</span><span class="stat-icon" style="color:#74b9ff">⊗</span></div>
+        <div class="stat-value @(Model.AppConfigApplications < 0 ? "error" : "")">@(Model.AppConfigApplications < 0 ? "ERR" : Model.AppConfigApplications.ToString())</div>
+        <span class="text-dim text-sm">Applications</span><span class="stat-accent" style="background:#74b9ff"></span>
+    </a>
+</div>
+
+<div class="section-title">ANALYTICS</div>
+<div class="stats-grid">
+    <a asp-controller="Services" asp-action="Glue" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Glue</span><span class="stat-icon" style="color:#6c5ce7">⋈</span></div>
+        <div class="stat-value @(Model.GlueDatabases < 0 ? "error" : "")">@(Model.GlueDatabases < 0 ? "ERR" : Model.GlueDatabases.ToString())</div>
+        <span class="text-dim text-sm">Databases</span><span class="stat-accent" style="background:#6c5ce7"></span>
+    </a>
+    <a asp-controller="Services" asp-action="Athena" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Athena</span><span class="stat-icon" style="color:#00cec9">⊛</span></div>
+        <div class="stat-value @(Model.AthenaWorkGroups < 0 ? "error" : "")">@(Model.AthenaWorkGroups < 0 ? "ERR" : Model.AthenaWorkGroups.ToString())</div>
+        <span class="text-dim text-sm">Work Groups</span><span class="stat-accent" style="background:#00cec9"></span>
+    </a>
+</div>
+
+<div class="section-title">NETWORK &amp; DELIVERY</div>
+<div class="stats-grid">
+    <a asp-controller="Services" asp-action="Route53" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Route 53</span><span class="stat-icon" style="color:#e84393">⊕</span></div>
+        <div class="stat-value @(Model.Route53Zones < 0 ? "error" : "")">@(Model.Route53Zones < 0 ? "ERR" : Model.Route53Zones.ToString())</div>
+        <span class="text-dim text-sm">Hosted Zones</span><span class="stat-accent" style="background:#e84393"></span>
+    </a>
+    <a asp-controller="Services" asp-action="Transfer" class="stat-card">
+        <div class="stat-header"><span class="stat-label">Transfer Family</span><span class="stat-icon" style="color:#00b894">⇄</span></div>
+        <div class="stat-value @(Model.TransferServers < 0 ? "error" : "")">@(Model.TransferServers < 0 ? "ERR" : Model.TransferServers.ToString())</div>
+        <span class="text-dim text-sm">Servers</span><span class="stat-accent" style="background:#00b894"></span>
+    </a>
+</div>
+
+<div class="section-title">CONNECTION INFO</div>
+<div class="info-grid">
+    <div class="info-card">
+        <div class="info-card-title">ENDPOINT</div>
+        <div class="info-card-val mono">@ViewBag.FlociEndpoint</div>
+    </div>
+    <div class="info-card">
+        <div class="info-card-title">REGION</div>
+        <div class="info-card-val mono">@(ViewBag.CurrentRegion ?? "us-east-1")</div>
+    </div>
+    <div class="info-card">
+        <div class="info-card-title">LAST REFRESHED</div>
+        <div class="info-card-val mono">@Model.LastRefreshed.ToString("yyyy-MM-dd HH:mm:ss") UTC</div>
+    </div>
+    <div class="info-card">
+        <div class="info-card-title">EMULATOR</div>
+        <div class="info-card-val">Floci — AWS Local Emulator</div>
+    </div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert--error">
+        <span>✕</span> Could not connect to Floci at <strong>@ViewBag.FlociEndpoint</strong>: @ViewBag.Error
+    </div>
+}
+
+    <a asp-controller="Services" asp-action="S3" class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">S3</span>
+            <span class="stat-icon" style="color:var(--s3)">▣</span>
+        </div>
+        <div class="stat-value @(Model.S3Buckets < 0 ? "error" : "")">
+            @(Model.S3Buckets < 0 ? "ERR" : Model.S3Buckets.ToString())
+        </div>
+        <span class="text-dim text-sm">Buckets</span>
+        <span class="stat-accent" style="background:var(--s3)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="DynamoDB" class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">DynamoDB</span>
+            <span class="stat-icon" style="color:var(--dynamo)">⬡</span>
+        </div>
+        <div class="stat-value @(Model.DynamoTables < 0 ? "error" : "")">
+            @(Model.DynamoTables < 0 ? "ERR" : Model.DynamoTables.ToString())
+        </div>
+        <span class="text-dim text-sm">Tables</span>
+        <span class="stat-accent" style="background:var(--dynamo)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="SQS" class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">SQS</span>
+            <span class="stat-icon" style="color:var(--sqs)">⇆</span>
+        </div>
+        <div class="stat-value @(Model.SqsQueues < 0 ? "error" : "")">
+            @(Model.SqsQueues < 0 ? "ERR" : Model.SqsQueues.ToString())
+        </div>
+        <span class="text-dim text-sm">Queues</span>
+        <span class="stat-accent" style="background:var(--sqs)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="SNS" class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">SNS</span>
+            <span class="stat-icon" style="color:var(--sns)">⊕</span>
+        </div>
+        <div class="stat-value @(Model.SnsTopics < 0 ? "error" : "")">
+            @(Model.SnsTopics < 0 ? "ERR" : Model.SnsTopics.ToString())
+        </div>
+        <span class="text-dim text-sm">Topics</span>
+        <span class="stat-accent" style="background:var(--sns)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="Lambda" class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">Lambda</span>
+            <span class="stat-icon" style="color:var(--lambda)">λ</span>
+        </div>
+        <div class="stat-value @(Model.LambdaFunctions < 0 ? "error" : "")">
+            @(Model.LambdaFunctions < 0 ? "ERR" : Model.LambdaFunctions.ToString())
+        </div>
+        <span class="text-dim text-sm">Functions</span>
+        <span class="stat-accent" style="background:var(--lambda)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="KMS" class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">KMS</span>
+            <span class="stat-icon" style="color:var(--kms)">⚿</span>
+        </div>
+        <div class="stat-value @(Model.KmsKeys < 0 ? "error" : "")">
+            @(Model.KmsKeys < 0 ? "ERR" : Model.KmsKeys.ToString())
+        </div>
+        <span class="text-dim text-sm">Keys</span>
+        <span class="stat-accent" style="background:var(--kms)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="IAM" class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">IAM</span>
+            <span class="stat-icon" style="color:var(--iam)">👤</span>
+        </div>
+        <div class="stat-value @(Model.IamUsers < 0 ? "error" : "")">
+            @(Model.IamUsers < 0 ? "ERR" : Model.IamUsers.ToString())
+        </div>
+        <span class="text-dim text-sm">Users</span>
+        <span class="stat-accent" style="background:var(--iam)"></span>
+    </a>
+    <a asp-controller="Services" asp-action="SSM" class="stat-card">
+        <div class="stat-header">
+            <span class="stat-label">SSM</span>
+            <span class="stat-icon" style="color:var(--ssm)">⚙</span>
+        </div>
+        <div class="stat-value @(Model.SsmParameters < 0 ? "error" : "")">
+            @(Model.SsmParameters < 0 ? "ERR" : Model.SsmParameters.ToString())
+        </div>
+        <span class="text-dim text-sm">Parameters</span>
+        <span class="stat-accent" style="background:var(--ssm)"></span>
+    </a>
+</div>
+
+<div class="section-title">CONNECTION INFO</div>
+<div class="info-grid">
+    <div class="info-card">
+        <div class="info-card-title">ENDPOINT</div>
+        <div class="info-card-val mono">@ViewBag.FlociEndpoint</div>
+    </div>
+    <div class="info-card">
+        <div class="info-card-title">LAST REFRESHED</div>
+        <div class="info-card-val mono">@Model.LastRefreshed.ToString("yyyy-MM-dd HH:mm:ss") UTC</div>
+    </div>
+    <div class="info-card">
+        <div class="info-card-title">EMULATOR</div>
+        <div class="info-card-val">Floci — AWS Local Emulator</div>
+    </div>
+</div>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert--error">
+        <span>✕</span> Could not connect to Floci at <strong>@ViewBag.FlociEndpoint</strong>: @ViewBag.Error
+    </div>
+}

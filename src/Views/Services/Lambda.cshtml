@@ -1,0 +1,117 @@
+@model List<LambdaFunctionInfo>
+@{
+    ViewData["Title"] = "Lambda — Functions";
+    string? invokeResult = TempData["InvokeResult"]?.ToString();
+    string? invokeName = TempData["InvokeName"]?.ToString();
+}
+
+<div class="service-header">
+    <div class="service-title">
+        <span style="color:var(--lambda)">λ</span>
+        Lambda Functions
+        <span class="service-count">@Model.Count total</span>
+    </div>
+</div>
+
+@if (invokeResult != null)
+{
+    <div style="margin-bottom:20px">
+        <div class="section-title">INVOCATION RESULT — @invokeName</div>
+        <div class="result-box">@invokeResult</div>
+    </div>
+}
+
+@if (Model.Count == 0)
+{
+    <div class="table-wrap">
+        <div class="empty-state">
+            <div class="empty-icon">λ</div>
+            <div class="empty-title">No functions deployed</div>
+            <div class="empty-sub">Deploy Lambda functions via AWS SDK or CLI pointing to localhost:4566</div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Function Name</th>
+                    <th>Runtime</th>
+                    <th>Handler</th>
+                    <th>Memory</th>
+                    <th>Timeout</th>
+                    <th>State</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="mono">@f.Name</div>
+                            @if (!string.IsNullOrEmpty(f.Description))
+                            {
+                                <div class="text-dim" style="font-size:11px">@f.Description</div>
+                            }
+                        </td>
+                        <td><span class="badge badge--cyan">@f.Runtime</span></td>
+                        <td class="mono text-sm">@f.Handler</td>
+                        <td class="mono">@f.MemorySize MB</td>
+                        <td class="mono">@f.Timeout s</td>
+                        <td>
+                            <span class="badge @(f.State == "Active" ? "badge--green" : f.State == "Pending" ? "badge--yellow" : "badge--red")">
+                                @f.State
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-row">
+                                <button class="btn btn--green btn--sm"
+                                    onclick="openInvokeModal('@f.Name')">Invoke</button>
+                                <form asp-action="DeleteFunction" method="post" onsubmit="return confirm('Delete function \'@f.Name\'?')">
+                                    <input type="hidden" name="name" value="@f.Name" />
+                                    <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="invokeModal">
+    <div class="modal">
+        <div class="modal-title">Invoke <span id="invokeFnName"></span></div>
+        <form asp-action="InvokeFunction" method="post">
+            <input type="hidden" name="FunctionName" id="invokeFnNameInput" />
+            <div class="form-group">
+                <label class="form-label">Payload (JSON)</label>
+                <textarea name="Payload" class="form-control" rows="5" placeholder="{}">{}</textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--ghost" onclick="closeModal('invokeModal')">Cancel</button>
+                <button type="submit" class="btn btn--primary">Invoke</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+@section Scripts {
+<script>
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+
+function openInvokeModal(name) {
+    document.getElementById('invokeFnName').textContent = name;
+    document.getElementById('invokeFnNameInput').value = name;
+    openModal('invokeModal');
+}
+</script>
+}

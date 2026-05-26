@@ -1,0 +1,40 @@
+@model List<CognitoUserPoolInfo>
+@{ViewData["Title"] = "Cognito — User Pools";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#a29bfe">⊘</span> User Pools <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal(''createPool'')">+ Create User Pool</button>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⊘</div><div class="empty-title">No user pools yet</div><div class="empty-sub">Create a Cognito User Pool for authentication</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Pool Name</th><th>Pool ID</th><th>Users</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+<tbody>@foreach(var p in Model){<tr>
+<td class="mono">@p.Name</td>
+<td class="mono text-dim">@p.Id</td>
+<td><span class="badge badge--blue">@p.UserCount</span></td>
+<td><span class="badge badge--green">@p.Status</span></td>
+<td class="mono">@p.CreationDate.ToString("yyyy-MM-dd")</td>
+<td><div class="action-row">
+    <a asp-action="CognitoUsers" asp-route-userPoolId="@p.Id" asp-route-poolName="@p.Name" class="btn btn--blue btn--sm">Users</a>
+    <form asp-action="DeleteUserPool" method="post" onsubmit="return confirm(''Delete pool \''@p.Name\''?'')">
+        <input type="hidden" name="userPoolId" value="@p.Id" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+    </form>
+</div></td>
+</tr>}</tbody></table></div>
+}
+@section Modals {
+<div class="modal-overlay" id="createPool"><div class="modal"><div class="modal-title">Create User Pool</div>
+<form asp-action="CreateUserPool" method="post">
+    <div class="form-group"><label class="form-label">Pool Name</label><input name="PoolName" class="form-control" required /></div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" name="UsernameAsEmail" value="true" /> Use Email as Username</label></div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" name="MfaEnabled" value="true" /> Enable MFA</label></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal(''createPool'')">Cancel</button>
+    <button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add(''open'');}
+function closeModal(id){document.getElementById(id).classList.remove(''open'');}
+document.querySelectorAll(''.modal-overlay'').forEach(m=>m.addEventListener(''click'',e=>{if(e.target===m)m.classList.remove(''open'');}));
+</script>}

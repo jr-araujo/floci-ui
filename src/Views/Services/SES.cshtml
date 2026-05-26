@@ -1,0 +1,46 @@
+@model List<SesIdentityInfo>
+@{ViewData["Title"] = "SES — Email";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#54a0ff">✉</span> SES Identities <span class="service-count">@Model.Count total</span></div>
+    <div class="action-row">
+        <button class="btn btn--primary" onclick="openModal(''verifyEmail'')">+ Verify Email</button>
+        <button class="btn btn--green" onclick="openModal(''sendEmail'')">Send Email</button>
+    </div>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">✉</div><div class="empty-title">No identities yet</div><div class="empty-sub">Verify email addresses or domains to send email</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Identity</th><th>Type</th><th>Verification Status</th><th>Actions</th></tr></thead>
+<tbody>@foreach(var id in Model){<tr>
+<td class="mono">@id.Identity</td>
+<td><span class="badge @(id.IsEmail?"badge--blue":"badge--purple")">@(id.IsEmail?"Email":"Domain")</span></td>
+<td><span class="badge @(id.VerificationStatus=="Success"?"badge--green":"badge--yellow")">@id.VerificationStatus</span></td>
+<td><form asp-action="DeleteIdentity" method="post" onsubmit="return confirm(''Delete identity \''@id.Identity\''?'')">
+    <input type="hidden" name="identity" value="@id.Identity" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+</form></td>
+</tr>}</tbody></table></div>
+}
+@section Modals {
+<div class="modal-overlay" id="verifyEmail"><div class="modal"><div class="modal-title">Verify Email Identity</div>
+<form asp-action="VerifyEmail" method="post">
+    <div class="form-group"><label class="form-label">Email Address</label><input name="EmailAddress" type="email" class="form-control" placeholder="user@example.com" required /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal(''verifyEmail'')">Cancel</button>
+    <button type="submit" class="btn btn--primary">Verify</button></div>
+</form></div></div>
+<div class="modal-overlay" id="sendEmail"><div class="modal" style="max-width:520px"><div class="modal-title">Send Email</div>
+<form asp-action="SendEmail" method="post">
+    <div class="form-group"><label class="form-label">From</label><input name="From" type="email" class="form-control" placeholder="sender@example.com" required /></div>
+    <div class="form-group"><label class="form-label">To</label><input name="To" type="email" class="form-control" placeholder="recipient@example.com" required /></div>
+    <div class="form-group"><label class="form-label">Subject</label><input name="Subject" class="form-control" required /></div>
+    <div class="form-group"><label class="form-label">Body</label><textarea name="Body" class="form-control" rows="6" required></textarea></div>
+    <div class="form-group"><label class="form-check"><input type="checkbox" name="IsHtml" value="true" /> HTML Body</label></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal(''sendEmail'')">Cancel</button>
+    <button type="submit" class="btn btn--green">Send</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add(''open'');}
+function closeModal(id){document.getElementById(id).classList.remove(''open'');}
+document.querySelectorAll(''.modal-overlay'').forEach(m=>m.addEventListener(''click'',e=>{if(e.target===m)m.classList.remove(''open'');}));
+</script>}

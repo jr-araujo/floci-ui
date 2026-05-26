@@ -1,0 +1,54 @@
+@model List<SchedulerScheduleInfo>
+@{ViewData["Title"] = "EventBridge Scheduler";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#c7ecee">⏱</span> Scheduler <span class="service-count">@Model.Count schedules</span></div>
+    <button class="btn btn--primary" onclick="openModal('createSchedule')">+ Create Schedule</button>
+</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⏱</div><div class="empty-title">No schedules</div><div class="empty-sub">Create a schedule to invoke targets on a recurring basis.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th>Group</th><th>State</th><th>Expression</th><th>ARN</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var s in Model)
+    {
+        <tr>
+        <td class="mono">@s.Name</td>
+        <td class="mono">@s.GroupName</td>
+        <td><span class="badge @(s.State=="ENABLED"?"badge--green":"badge--yellow")">@s.State</span></td>
+        <td class="mono" style="font-size:11px">@s.ScheduleExpression</td>
+        <td><span class="arn">@s.Arn</span></td>
+        <td>
+            <form asp-action="DeleteSchedule" method="post" onsubmit="return confirm('Delete schedule?')">
+                <input type="hidden" name="name" value="@s.Name" />
+                <input type="hidden" name="groupName" value="@s.GroupName" />
+                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+            </form>
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createSchedule"><div class="modal" style="max-width:560px"><div class="modal-title">Create Schedule</div>
+<form asp-action="CreateSchedule" method="post">
+    <div class="form-group"><label class="form-label">Name</label><input name="Name" class="form-control" required /></div>
+    <div class="form-group"><label class="form-label">Group Name</label><input name="GroupName" class="form-control" value="default" /></div>
+    <div class="form-group"><label class="form-label">Schedule Expression</label><input name="ScheduleExpression" class="form-control" value="rate(5 minutes)" required /></div>
+    <div class="form-group"><label class="form-label">State</label>
+    <select name="State" class="form-control"><option value="ENABLED">ENABLED</option><option value="DISABLED">DISABLED</option></select></div>
+    <div class="form-group"><label class="form-label">Target ARN</label><input name="TargetArn" class="form-control mono" placeholder="arn:aws:lambda:..." required /></div>
+    <div class="form-group"><label class="form-label">Target Role ARN</label><input name="TargetRoleArn" class="form-control mono" placeholder="arn:aws:iam::..." required /></div>
+    <div class="form-group"><label class="form-label">Target Input (JSON)</label><textarea name="Input" class="form-control mono" rows="3">{}</textarea></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createSchedule')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+</script>}

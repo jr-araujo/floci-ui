@@ -1,0 +1,216 @@
+﻿@model List<SnsTopicInfo>
+@{
+    ViewData["Title"] = "SNS — Topics";
+    var queues = ViewBag.Queues as List<SqsQueueInfo> ?? new List<SqsQueueInfo>();
+}
+
+<div class="service-header">
+    <div class="service-title">
+        <span style="color:var(--sns)">⊕</span>
+        SNS Topics
+        <span class="service-count">@Model.Count total</span>
+    </div>
+    <button class="btn btn--primary" onclick="openModal(''createTopic'')">+ Create Topic</button>
+</div>
+
+@if (TempData["SecretValue"] != null) {
+    <div class="alert alert--success"><strong>@TempData["SecretName"]</strong>: <span class="mono">@TempData["SecretValue"]</span></div>
+}
+
+@if (Model.Count == 0)
+{
+    <div class="table-wrap">
+        <div class="empty-state">
+            <div class="empty-icon">⊕</div>
+            <div class="empty-title">No topics yet</div>
+            <div class="empty-sub">Create an SNS topic to start publishing messages</div>
+        </div>
+    </div>
+}
+else
+{
+    @foreach (var t in Model)
+    {
+        <div class="table-wrap" style="margin-bottom:24px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)">
+                <div>
+                    <span class="mono" style="font-weight:600;color:#fff">@t.Name</span>
+                    @if (t.IsFifo) { <span class="badge badge--purple" style="margin-left:8px">FIFO</span> }
+                    else { <span class="badge badge--blue" style="margin-left:8px">Standard</span> }
+                    <span class="arn" style="display:inline;margin-left:8px">@t.Arn</span>
+                </div>
+                <div class="action-row">
+                    <button class="btn btn--blue btn--sm" onclick="openSubscribeModal(''@t.Arn'', ''@t.Name'')">+ Subscribe</button>
+                    <button class="btn btn--green btn--sm" onclick="openPublishModal(''@t.Arn'', ''@t.Name'')">Publish</button>
+                    <form asp-action="DeleteTopic" method="post" onsubmit="return confirm(''Delete topic \''@t.Name\''?'')">
+                        <input type="hidden" name="arn" value="@t.Arn" />
+                        <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+                    </form>
+                </div>
+            </div>
+            @if (t.Subscriptions.Count > 0)
+            {
+                <table>
+                    <thead><tr><th>Protocol</th><th>Endpoint</th><th>Subscription ARN</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        @foreach (var sub in t.Subscriptions)
+                        {
+                            <tr>
+                                <td><span class="badge badge--blue">@sub.Protocol</span></td>
+                                <td class="mono" style="font-size:12px">@sub.Endpoint</td>
+                                <td><span class="arn">@sub.SubscriptionArn</span></td>
+                                <td>
+                                    @if (sub.SubscriptionArn != "PendingConfirmation")
+                                    {
+                                        <form asp-action="Unsubscribe" method="post">
+                                            <input type="hidden" name="subscriptionArn" value="@sub.SubscriptionArn" />
+                                            <button type="submit" class="btn btn--danger btn--sm">Unsubscribe</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div style="padding:12px 16px;color:var(--text-dim);font-size:13px">No subscriptions</div>
+            }
+        </div>
+    }
+}
+
+@section Modals {
+<div class="modal-overlay" id="createTopic">
+    <div class="modal">
+        <div class="modal-title">Create SNS Topic</div>
+        <form asp-action="CreateTopic" method="post">
+            <div class="form-group">
+                <label class="form-label">Topic Name</label>
+                <input name="TopicName" class="form-control" placeholder="my-topic" required />
+            </div>
+            <div class="form-group">
+                <label class="form-check">
+                    <input type="checkbox" name="Fifo" id="snsfifoCheck" value="true" onchange="updateSnsName()" />
+                    FIFO Topic (.fifo suffix added automatically)
+                </label>
+            </div>
+            <div class="form-group" id="snsDedup" style="display:none">
+                <label class="form-check">
+                    <input type="checkbox" name="ContentBasedDeduplication" value="true" />
+                    Content-Based Deduplication
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--ghost" onclick="closeModal(''createTopic'')">Cancel</button>
+                <button type="submit" class="btn btn--primary">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="subscribeModal">
+    <div class="modal" style="max-width:560px">
+        <div class="modal-title">Subscribe to <span id="subTopicName"></span></div>
+        <form asp-action="Subscribe" method="post">
+            <input type="hidden" name="TopicArn" id="subTopicArn" />
+            <input type="hidden" name="TopicName" id="subTopicNameHidden" />
+            <div class="form-group">
+                <label class="form-label">Protocol</label>
+                <select name="Protocol" id="subProtocol" class="form-control" onchange="updateSubProtocol()">
+                    <option value="sqs">SQS</option>
+                    <option value="http">HTTP</option>
+                    <option value="https">HTTPS</option>
+                    <option value="email">Email</option>
+                    <option value="lambda">Lambda</option>
+                </select>
+            </div>
+            <div class="form-group" id="sqsEndpointGroup">
+                <label class="form-label">SQS Queue ARN</label>
+                <select name="Endpoint" id="sqsEndpointSelect" class="form-control">
+                    @foreach (var q in queues)
+                    {
+                        <option value="@q.Arn">@q.Name (@q.Arn)</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group" id="customEndpointGroup" style="display:none">
+                <label class="form-label">Endpoint</label>
+                <input name="Endpoint" id="customEndpoint" class="form-control" placeholder="https://..." />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Filter Policy (JSON, optional)</label>
+                <textarea name="FilterPolicy" class="form-control mono" rows="5" placeholder=''{"source":["my-app"],"event_type":["ORDER_PLACED"]}''></textarea>
+                <div style="font-size:11px;color:var(--text-dim);margin-top:4px">
+                    Filter messages by attribute values. Leave empty to receive all messages.
+                    Example: <span class="mono">{"store":["example_corp"],"event":["order_placed"]}</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--ghost" onclick="closeModal(''subscribeModal'')">Cancel</button>
+                <button type="submit" class="btn btn--primary">Subscribe</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="publishModal">
+    <div class="modal" style="max-width:520px">
+        <div class="modal-title">Publish to <span id="publishTopicName"></span></div>
+        <form asp-action="Publish" method="post">
+            <input type="hidden" name="TopicArn" id="publishTopicArn" />
+            <input type="hidden" name="TopicName" id="publishTopicNameHidden" />
+            <div class="form-group">
+                <label class="form-label">Subject (optional)</label>
+                <input name="Subject" class="form-control" placeholder="Optional subject" />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Message</label>
+                <textarea name="Message" class="form-control mono" rows="4" placeholder="Your message here..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Message Attributes (JSON key-value, optional)</label>
+                <input name="MessageAttributes" class="form-control mono" placeholder=''{"source":"my-app","event_type":"order_placed"}'' />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--ghost" onclick="closeModal(''publishModal'')">Cancel</button>
+                <button type="submit" class="btn btn--green">Publish</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+@section Scripts {
+<script>
+function openModal(id) { document.getElementById(id).classList.add(''open''); }
+function closeModal(id) { document.getElementById(id).classList.remove(''open''); }
+document.querySelectorAll(''.modal-overlay'').forEach(m => m.addEventListener(''click'', e => { if(e.target===m) m.classList.remove(''open''); }));
+
+function openPublishModal(arn, name) {
+    document.getElementById(''publishTopicArn'').value = arn;
+    document.getElementById(''publishTopicName'').textContent = name;
+    document.getElementById(''publishTopicNameHidden'').value = name;
+    openModal(''publishModal'');
+}
+function openSubscribeModal(arn, name) {
+    document.getElementById(''subTopicArn'').value = arn;
+    document.getElementById(''subTopicName'').textContent = name;
+    document.getElementById(''subTopicNameHidden'').value = name;
+    updateSubProtocol();
+    openModal(''subscribeModal'');
+}
+function updateSubProtocol() {
+    const proto = document.getElementById(''subProtocol'').value;
+    document.getElementById(''sqsEndpointGroup'').style.display = proto === ''sqs'' ? '''' : ''none'';
+    document.getElementById(''customEndpointGroup'').style.display = proto !== ''sqs'' ? '''' : ''none'';
+    const customInput = document.getElementById(''customEndpoint'');
+    if (proto !== ''sqs'') customInput.setAttribute(''required'', '''');
+    else customInput.removeAttribute(''required'');
+}
+function updateSnsName() {
+    document.getElementById(''snsDedup'').style.display = document.getElementById(''snsfifoCheck'').checked ? '''' : ''none'';
+}
+</script>
+}

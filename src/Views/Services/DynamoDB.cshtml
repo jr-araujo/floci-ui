@@ -1,0 +1,62 @@
+﻿@model List<DynamoTableInfo>
+@{ViewData["Title"] = "DynamoDB — Tables";}
+<div class="service-header">
+    <div class="service-title"><span style="color:var(--dynamo)">⬡</span> DynamoDB Tables <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal(''createTable'')">+ Create Table</button>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⬡</div><div class="empty-title">No tables yet</div><div class="empty-sub">Create a DynamoDB table to get started</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Table Name</th><th>Status</th><th>Items</th><th>Size</th><th>Billing</th><th>Keys</th><th>Streams</th><th>Actions</th></tr></thead>
+<tbody>
+@foreach (var t in Model) {
+<tr>
+<td class="mono">@t.Name</td>
+<td><span class="badge @(t.Status=="ACTIVE"?"badge--green":"badge--yellow")">@t.Status</span></td>
+<td class="mono">@t.ItemCount</td>
+<td class="mono">@t.SizeBytes B</td>
+<td><span class="badge badge--blue">@t.BillingMode</span></td>
+<td class="mono" style="font-size:12px">@string.Join(", ", t.KeySchema)</td>
+<td>@if(t.StreamEnabled){<span class="badge badge--purple">@t.StreamViewType</span>}else{<span class="text-dim">—</span>}</td>
+<td><form asp-action="DeleteTable" method="post" onsubmit="return confirm(''Delete table \''@t.Name\''?'')">
+    <input type="hidden" name="name" value="@t.Name" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+</form></td>
+</tr>
+}
+</tbody></table></div>
+}
+@section Modals {
+<div class="modal-overlay" id="createTable"><div class="modal" style="max-width:520px">
+    <div class="modal-title">Create DynamoDB Table</div>
+    <form asp-action="CreateTable" method="post">
+        <div class="form-group"><label class="form-label">Table Name</label><input name="TableName" class="form-control" placeholder="my-table" required /></div>
+        <div class="form-group"><label class="form-label">Partition Key</label><input name="PartitionKey" class="form-control" value="id" required /></div>
+        <div class="form-group"><label class="form-label">Sort Key (optional)</label><input name="SortKey" class="form-control" placeholder="sk" /></div>
+        <div class="form-group"><label class="form-check">
+            <input type="checkbox" name="EnableStreams" id="streamsCheck" value="true" onchange="toggleStreams()" /> Enable DynamoDB Streams
+        </label></div>
+        <div class="form-group" id="streamViewGroup" style="display:none">
+            <label class="form-label">Stream View Type</label>
+            <select name="StreamViewType" class="form-control">
+                <option value="NEW_AND_OLD_IMAGES">NEW_AND_OLD_IMAGES (recommended)</option>
+                <option value="NEW_IMAGE">NEW_IMAGE</option>
+                <option value="OLD_IMAGE">OLD_IMAGE</option>
+                <option value="KEYS_ONLY">KEYS_ONLY</option>
+            </select>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn--ghost" onclick="closeModal(''createTable'')">Cancel</button>
+            <button type="submit" class="btn btn--primary">Create</button>
+        </div>
+    </form>
+</div></div>
+}
+@section Scripts {
+<script>
+function openModal(id){document.getElementById(id).classList.add(''open'');}
+function closeModal(id){document.getElementById(id).classList.remove(''open'');}
+document.querySelectorAll(''.modal-overlay'').forEach(m=>m.addEventListener(''click'',e=>{if(e.target===m)m.classList.remove(''open'');}));
+function toggleStreams(){document.getElementById(''streamViewGroup'').style.display=document.getElementById(''streamsCheck'').checked?'''':''none'';}
+</script>
+}

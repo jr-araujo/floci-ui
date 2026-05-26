@@ -1,0 +1,87 @@
+@model List<BackupVaultInfo>
+@{
+    ViewData["Title"] = "AWS Backup";
+    var plans = ViewBag.Plans as List<BackupPlanInfo> ?? new();
+}
+<div class="service-header">
+    <div class="service-title"><span style="color:#ff6b6b">⊕</span> Backup Vaults <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal('createVault')">+ Create Vault</button>
+</div>
+
+<div class="section-title">BACKUP VAULTS</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⊕</div><div class="empty-title">No backup vaults</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Vault Name</th><th>Recovery Points</th><th>Encryption Key</th><th>Created</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var v in Model)
+    {
+        <tr>
+        <td class="mono">@v.BackupVaultName</td>
+        <td class="mono">@v.NumberOfRecoveryPoints</td>
+        <td class="mono" style="font-size:11px">@(string.IsNullOrEmpty(v.EncryptionKeyArn) ? "—" : v.EncryptionKeyArn)</td>
+        <td class="mono">@v.CreationDate.ToString("yyyy-MM-dd")</td>
+        <td>
+            @if (v.BackupVaultName != "Default")
+            {
+                <form asp-action="DeleteBackupVault" method="post" onsubmit="return confirm('Delete vault?')">
+                    <input type="hidden" name="name" value="@v.BackupVaultName" />
+                    <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+                </form>
+            }
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+<div class="section-title" style="margin-top:32px">BACKUP PLANS
+    <button class="btn btn--primary btn--sm" style="margin-left:12px" onclick="openModal('createPlan')">+ Create Plan</button>
+</div>
+@if (plans.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⊕</div><div class="empty-title">No backup plans</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Plan Name</th><th>Plan ID</th><th>Created</th></tr></thead>
+    <tbody>
+    @foreach (var p in plans)
+    {
+        <tr>
+        <td class="mono">@p.BackupPlanName</td>
+        <td class="mono" style="font-size:11px">@p.BackupPlanId</td>
+        <td class="mono">@p.CreationDate.ToString("yyyy-MM-dd")</td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createVault"><div class="modal"><div class="modal-title">Create Backup Vault</div>
+<form asp-action="CreateBackupVault" method="post">
+    <div class="form-group"><label class="form-label">Vault Name</label><input name="BackupVaultName" class="form-control" required placeholder="my-vault" /></div>
+    <div class="form-group"><label class="form-label">Encryption Key ARN (optional)</label><input name="EncryptionKeyArn" class="form-control mono" placeholder="arn:aws:kms:..." /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createVault')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+
+<div class="modal-overlay" id="createPlan"><div class="modal" style="max-width:520px"><div class="modal-title">Create Backup Plan</div>
+<form asp-action="CreateBackupPlan" method="post">
+    <div class="form-group"><label class="form-label">Plan Name</label><input name="BackupPlanName" class="form-control" required placeholder="daily-backup" /></div>
+    <div class="form-group"><label class="form-label">Rule Name</label><input name="RuleName" class="form-control" value="DailyBackup" /></div>
+    <div class="form-group"><label class="form-label">Target Vault Name</label><input name="TargetVaultName" class="form-control" required placeholder="my-vault" /></div>
+    <div class="form-group"><label class="form-label">Schedule Expression</label><input name="ScheduleExpression" class="form-control" value="cron(0 5 ? * * *)" /></div>
+    <div class="form-group"><label class="form-label">Delete After (days)</label><input name="DeleteAfterDays" type="number" class="form-control" value="30" min="1" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createPlan')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+</script>}

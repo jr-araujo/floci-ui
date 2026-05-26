@@ -1,0 +1,99 @@
+﻿@model List<SqsQueueInfo>
+@{
+    ViewData["Title"] = "SQS — Queues";
+}
+<div class="service-header">
+    <div class="service-title"><span style="color:var(--sqs)">⇆</span> SQS Queues <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal(''createQueue'')">+ Create Queue</button>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⇆</div><div class="empty-title">No queues yet</div><div class="empty-sub">Create an SQS queue to start passing messages</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Queue Name</th><th>Type</th><th>Available</th><th>In Flight</th><th>Visibility (s)</th><th>Retention (s)</th><th>DLQ</th><th>Actions</th></tr></thead>
+<tbody>
+@foreach (var q in Model) {
+<tr>
+<td class="mono">@q.Name</td>
+<td>@if(q.IsFifo){<span class="badge badge--purple">FIFO</span>}else{<span class="badge badge--blue">Standard</span>}</td>
+<td><span class="badge @(q.MessagesAvailable > 0 ? "badge--yellow" : "badge--green")">@q.MessagesAvailable</span></td>
+<td class="mono">@q.MessagesInFlight</td>
+<td class="mono">@q.VisibilityTimeout</td>
+<td class="mono">@q.RetentionPeriod</td>
+<td>@if(!string.IsNullOrWhiteSpace(q.DeadLetterTargetArn)){<span class="badge badge--yellow" title="@q.DeadLetterTargetArn">DLQ (max @q.MaxReceiveCount)</span>}else{<span class="text-dim">—</span>}</td>
+<td><div class="action-row">
+    <a asp-action="SQSMessages" asp-route-queueUrl="@q.Url" asp-route-queueName="@q.Name" class="btn btn--cyan btn--sm">Poll Msgs</a>
+    <button class="btn btn--green btn--sm" onclick="openSendModal(''@q.Url'', ''@q.Name'', @q.IsFifo.ToString().ToLower())">Send Msg</button>
+    <form asp-action="DeleteQueue" method="post" onsubmit="return confirm(''Delete queue \''@q.Name\''?'')">
+        <input type="hidden" name="url" value="@q.Url" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+    </form>
+</div></td>
+</tr>
+}
+</tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createQueue"><div class="modal" style="max-width:520px">
+    <div class="modal-title">Create SQS Queue</div>
+    <form asp-action="CreateQueue" method="post">
+        <div class="form-group"><label class="form-label">Queue Name</label>
+        <input name="QueueName" id="queueNameInput" class="form-control" placeholder="my-queue" required /></div>
+        <div class="form-group"><label class="form-check">
+            <input type="checkbox" name="Fifo" id="fifoCheck" value="true" onchange="updateQueueName()" /> FIFO Queue (.fifo suffix added)
+        </label></div>
+        <div class="form-group"><label class="form-label">Visibility Timeout (s)</label>
+        <input name="VisibilityTimeout" type="number" class="form-control" value="30" min="0" max="43200" /></div>
+        <div class="form-group"><label class="form-label">Message Retention (s)</label>
+        <input name="MessageRetentionPeriod" type="number" class="form-control" value="345600" min="60" max="1209600" /></div>
+        <div class="form-group"><label class="form-label">Dead Letter Queue ARN (optional)</label>
+        <input name="DeadLetterQueueArn" class="form-control mono" placeholder="arn:aws:sqs:..." />
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px">Leave empty for no DLQ</div></div>
+        <div class="form-group"><label class="form-label">Max Receive Count (for DLQ)</label>
+        <input name="MaxReceiveCount" type="number" class="form-control" value="3" min="1" max="1000" /></div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn--ghost" onclick="closeModal(''createQueue'')">Cancel</button>
+            <button type="submit" class="btn btn--primary">Create</button>
+        </div>
+    </form>
+</div></div>
+<div class="modal-overlay" id="sendMessage"><div class="modal" style="max-width:480px">
+    <div class="modal-title">Send Message to <span id="sendQueueName"></span></div>
+    <form asp-action="SendMessage" method="post">
+        <input type="hidden" name="QueueUrl" id="sendQueueUrl" />
+        <input type="hidden" name="QueueName" id="sendQueueNameHidden" />
+        <div class="form-group"><label class="form-label">Message Body</label>
+        <textarea name="Body" class="form-control mono" rows="5" placeholder=''{"key": "value"}'' required></textarea></div>
+        <div id="fifoFields" style="display:none">
+            <div class="form-group"><label class="form-label">Message Group ID (FIFO required)</label>
+            <input name="MessageGroupId" class="form-control" placeholder="group-1" /></div>
+            <div class="form-group"><label class="form-label">Message Deduplication ID</label>
+            <input name="MessageDeduplicationId" class="form-control" placeholder="unique-id" /></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn--ghost" onclick="closeModal(''sendMessage'')">Cancel</button>
+            <button type="submit" class="btn btn--primary">Send</button>
+        </div>
+    </form>
+</div></div>
+}
+@section Scripts {
+<script>
+function openModal(id) { document.getElementById(id).classList.add(''open''); }
+function closeModal(id) { document.getElementById(id).classList.remove(''open''); }
+document.querySelectorAll(''.modal-overlay'').forEach(m => m.addEventListener(''click'', e => { if(e.target===m) m.classList.remove(''open''); }));
+function openSendModal(url, name, isFifo) {
+    document.getElementById(''sendQueueUrl'').value = url;
+    document.getElementById(''sendQueueName'').textContent = name;
+    document.getElementById(''sendQueueNameHidden'').value = name;
+    document.getElementById(''fifoFields'').style.display = isFifo ? '''' : ''none'';
+    openModal(''sendMessage'');
+}
+function updateQueueName() {
+    const cb = document.getElementById(''fifoCheck'');
+    const inp = document.getElementById(''queueNameInput'');
+    if(cb.checked && !inp.value.endsWith(''.fifo'')) inp.placeholder = ''my-queue (.fifo added auto)'';
+    else inp.placeholder = ''my-queue'';
+}
+</script>
+}

@@ -1,0 +1,107 @@
+@model List<SqsMessageInfo>
+@{
+    ViewData["Title"] = $"SQS — {ViewBag.QueueName}";
+    string queueUrl = ViewBag.QueueUrl;
+    string queueName = ViewBag.QueueName;
+    int maxMessages = ViewBag.MaxMessages ?? 10;
+    int waitTime = ViewBag.WaitTimeSeconds ?? 0;
+}
+<div class="service-header">
+    <div>
+        <div class="service-title"><span style="color:var(--sqs)">⇆</span> Messages — <span class="mono">@queueName</span> <span class="service-count">@Model.Count polled</span></div>
+        <a asp-action="SQS" style="font-size:12px;color:var(--text-dim)">← Back to Queues</a>
+    </div>
+</div>
+
+<form method="get" asp-action="SQSMessages" style="display:flex;gap:12px;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap">
+    <input type="hidden" name="queueUrl" value="@queueUrl" />
+    <input type="hidden" name="queueName" value="@queueName" />
+    <div class="form-group" style="margin:0">
+        <label class="form-label">Max Messages (1–10)</label>
+        <input type="number" name="maxMessages" class="form-control" value="@maxMessages" min="1" max="10" style="width:100px" />
+    </div>
+    <div class="form-group" style="margin:0">
+        <label class="form-label">Wait Time (s, 0–20)</label>
+        <input type="number" name="waitTimeSeconds" class="form-control" value="@waitTime" min="0" max="20" style="width:100px" />
+    </div>
+    <button type="submit" class="btn btn--primary">↺ Poll</button>
+</form>
+
+@if (Model.Count == 0)
+{
+    <div class="table-wrap">
+        <div class="empty-state">
+            <div class="empty-icon">⇆</div>
+            <div class="empty-title">No messages available</div>
+            <div class="empty-sub">The queue is empty or all messages are in-flight. Try increasing Wait Time for long polling.</div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:36px">#</th>
+                    <th>Message ID</th>
+                    <th>Sent</th>
+                    <th>Recv #</th>
+                    <th>Body</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var m = Model[i];
+                    <tr>
+                        <td class="mono text-dim">@(i + 1)</td>
+                        <td>
+                            <span class="mono" style="font-size:11px">@m.MessageId</span>
+                            @if (!string.IsNullOrEmpty(m.SenderId))
+                            {
+                                <div class="text-dim" style="font-size:10px">Sender: @m.SenderId</div>
+                            }
+                        </td>
+                        <td class="mono" style="font-size:11px;white-space:nowrap">
+                            @(m.SentTimestamp.HasValue ? m.SentTimestamp.Value.ToString("yyyy-MM-dd HH:mm:ss") : "—")
+                        </td>
+                        <td class="mono">@m.ApproximateReceiveCount</td>
+                        <td style="max-width:420px">
+                            <button class="btn btn--ghost btn--sm" onclick="toggleBody('body-@i')">View</button>
+                            <pre id="body-@i" style="display:none;margin-top:8px;white-space:pre-wrap;word-break:break-all;font-size:12px;background:var(--surface2);padding:10px;border-radius:6px;max-height:200px;overflow:auto">@m.Body</pre>
+                        </td>
+                        <td>
+                            <form asp-action="DeleteMessage" method="post" onsubmit="return confirm('Delete (acknowledge) this message?')">
+                                <input type="hidden" name="queueUrl" value="@m.QueueUrl" />
+                                <input type="hidden" name="queueName" value="@m.QueueName" />
+                                <input type="hidden" name="receiptHandle" value="@m.ReceiptHandle" />
+                                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+<script>
+function toggleBody(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const visible = el.style.display !== 'none';
+    el.style.display = visible ? 'none' : 'block';
+    // Pretty-print JSON if possible
+    if (!visible && el.dataset.formatted !== 'true') {
+        try {
+            const parsed = JSON.parse(el.textContent);
+            el.textContent = JSON.stringify(parsed, null, 2);
+        } catch {}
+        el.dataset.formatted = 'true';
+    }
+}
+</script>
+}

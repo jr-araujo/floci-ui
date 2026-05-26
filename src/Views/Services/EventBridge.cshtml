@@ -1,0 +1,112 @@
+@model List<EventBridgeBusInfo>
+@{
+    ViewData["Title"] = "EventBridge";
+    var rules = ViewBag.Rules as List<EventBridgeRuleInfo> ?? new();
+}
+<div class="service-header">
+    <div class="service-title"><span style="color:#ff6b9d">⚡</span> EventBridge <span class="service-count">@Model.Count buses</span></div>
+    <button class="btn btn--primary" onclick="openModal('createBus')">+ Create Event Bus</button>
+</div>
+
+<div class="section-title">EVENT BUSES</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⚡</div><div class="empty-title">No event buses</div><div class="empty-sub">Only the default event bus exists or none have been created.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Bus Name</th><th>ARN</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var b in Model)
+    {
+        <tr>
+        <td class="mono">@b.Name</td>
+        <td><span class="arn">@b.Arn</span></td>
+        <td>
+            <div class="action-row">
+            <button class="btn btn--green btn--sm" onclick="openPutEventModal('@b.Name')">Put Event</button>
+            @if (b.Name != "default")
+            {
+                <form asp-action="DeleteEventBus" method="post" onsubmit="return confirm('Delete event bus?')">
+                    <input type="hidden" name="name" value="@b.Name" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+                </form>
+            }
+            </div>
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+<div class="section-title" style="margin-top:32px">RULES</div>
+<div style="margin-bottom:12px">
+    <button class="btn btn--primary btn--sm" onclick="openModal('createRule')">+ Create Rule</button>
+</div>
+@if (rules.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⚡</div><div class="empty-title">No rules</div><div class="empty-sub">Create event rules to route events to targets.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Rule Name</th><th>Bus</th><th>State</th><th>Schedule / Pattern</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var r in rules)
+    {
+        <tr>
+        <td class="mono">@r.Name</td>
+        <td class="mono">@r.EventBusName</td>
+        <td><span class="badge @(r.State=="ENABLED"?"badge--green":"badge--yellow")">@r.State</span></td>
+        <td class="mono" style="font-size:11px">@(string.IsNullOrEmpty(r.ScheduleExpression) ? r.EventPattern : r.ScheduleExpression)</td>
+        <td>
+            <form asp-action="DeleteEventRule" method="post" onsubmit="return confirm('Delete rule?')">
+                <input type="hidden" name="name" value="@r.Name" />
+                <input type="hidden" name="eventBusName" value="@r.EventBusName" />
+                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+            </form>
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createBus"><div class="modal"><div class="modal-title">Create Event Bus</div>
+<form asp-action="CreateEventBus" method="post">
+    <div class="form-group"><label class="form-label">Bus Name</label><input name="Name" class="form-control" required placeholder="my-app-bus" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createBus')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+
+<div class="modal-overlay" id="createRule"><div class="modal" style="max-width:560px"><div class="modal-title">Create Rule</div>
+<form asp-action="CreateEventRule" method="post">
+    <div class="form-group"><label class="form-label">Rule Name</label><input name="Name" class="form-control" required /></div>
+    <div class="form-group"><label class="form-label">Event Bus</label><input name="EventBusName" class="form-control" value="default" /></div>
+    <div class="form-group"><label class="form-label">State</label>
+    <select name="State" class="form-control"><option value="ENABLED">ENABLED</option><option value="DISABLED">DISABLED</option></select></div>
+    <div class="form-group"><label class="form-label">Event Pattern (JSON, leave blank if using schedule)</label>
+    <textarea name="EventPattern" class="form-control mono" rows="3" placeholder='{"source":["my.app"]}'></textarea></div>
+    <div class="form-group"><label class="form-label">Schedule Expression (e.g. rate(5 minutes))</label>
+    <input name="ScheduleExpression" class="form-control" placeholder="rate(5 minutes)" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createRule')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+
+<div class="modal-overlay" id="putEvent"><div class="modal"><div class="modal-title">Put Event — <span id="putEventBusName"></span></div>
+<form asp-action="PutEvent" method="post">
+    <input type="hidden" name="EventBusName" id="putEventBusInput" />
+    <div class="form-group"><label class="form-label">Source</label><input name="Source" class="form-control" placeholder="my.app" required /></div>
+    <div class="form-group"><label class="form-label">Detail Type</label><input name="DetailType" class="form-control" placeholder="UserSignedIn" required /></div>
+    <div class="form-group"><label class="form-label">Detail (JSON)</label><textarea name="Detail" class="form-control mono" rows="4">{}</textarea></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('putEvent')">Cancel</button><button type="submit" class="btn btn--green">Put Event</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+function openPutEventModal(bus){
+    document.getElementById('putEventBusName').textContent=bus;
+    document.getElementById('putEventBusInput').value=bus;
+    openModal('putEvent');
+}
+</script>}

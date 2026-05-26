@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Floci Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/floci.css" asp-append-version="true" />
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">☁</div>
+        <div class="brand-text">
+            <span class="brand-name">Floci</span>
+            <span class="brand-sub">AWS Emulator</span>
+        </div>
+    </div>
+
+    <div class="nav-section-label">OVERVIEW</div>
+    <a asp-controller="Home" asp-action="Index" class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+        <span class="nav-icon">◈</span> Dashboard
+    </a>
+
+    <div class="nav-section-label">STORAGE</div>
+    <a asp-controller="Services" asp-action="S3" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "S3" ? "active" : "")">
+        <span class="nav-icon nav-icon--s3">▣</span> S3
+    </a>
+    <a asp-controller="Services" asp-action="DynamoDB" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "DynamoDB" ? "active" : "")">
+        <span class="nav-icon nav-icon--dynamo">⬡</span> DynamoDB
+    </a>
+    <a asp-controller="Services" asp-action="RDS" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "RDS" ? "active" : "")">
+        <span class="nav-icon" style="color:#4ecdc4">⊞</span> RDS
+    </a>
+    <a asp-controller="Services" asp-action="ElastiCache" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "ElastiCache" ? "active" : "")">
+        <span class="nav-icon" style="color:#c05de9">⊡</span> ElastiCache
+    </a>
+    <a asp-controller="Services" asp-action="OpenSearch" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "OpenSearch" ? "active" : "")">
+        <span class="nav-icon" style="color:#ffd93d">⊛</span> OpenSearch
+    </a>
+    <a asp-controller="Services" asp-action="Backup" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Backup" ? "active" : "")">
+        <span class="nav-icon" style="color:#ff6b6b">⊕</span> Backup
+    </a>
+
+    <div class="nav-section-label">MESSAGING</div>
+    <a asp-controller="Services" asp-action="SQS" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "SQS" ? "active" : "")">
+        <span class="nav-icon nav-icon--sqs">⇆</span> SQS
+    </a>
+    <a asp-controller="Services" asp-action="SNS" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "SNS" ? "active" : "")">
+        <span class="nav-icon nav-icon--sns">⊕</span> SNS
+    </a>
+    <a asp-controller="Services" asp-action="Kinesis" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Kinesis" ? "active" : "")">
+        <span class="nav-icon" style="color:#ff6b6b">≋</span> Kinesis
+    </a>
+    <a asp-controller="Services" asp-action="Firehose" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Firehose" ? "active" : "")">
+        <span class="nav-icon" style="color:#ff9f43">⊳</span> Firehose
+    </a>
+    <a asp-controller="Services" asp-action="SES" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "SES" ? "active" : "")">
+        <span class="nav-icon" style="color:#54a0ff">✉</span> SES
+    </a>
+    <a asp-controller="Services" asp-action="EventBridge" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "EventBridge" ? "active" : "")">
+        <span class="nav-icon" style="color:#ff6b9d">⚡</span> EventBridge
+    </a>
+    <a asp-controller="Services" asp-action="Scheduler" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Scheduler" ? "active" : "")">
+        <span class="nav-icon" style="color:#c7ecee">⏱</span> Scheduler
+    </a>
+
+    <div class="nav-section-label">COMPUTE</div>
+    <a asp-controller="Services" asp-action="Lambda" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Lambda" ? "active" : "")">
+        <span class="nav-icon nav-icon--lambda">λ</span> Lambda
+    </a>
+    <a asp-controller="Services" asp-action="ECS" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "ECS" ? "active" : "")">
+        <span class="nav-icon" style="color:#48dbfb">⊞</span> ECS
+    </a>
+    <a asp-controller="Services" asp-action="ECR" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "ECR" ? "active" : "")">
+        <span class="nav-icon" style="color:#ff9f43">⊡</span> ECR
+    </a>
+    <a asp-controller="Services" asp-action="StepFunctions" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "StepFunctions" ? "active" : "")">
+        <span class="nav-icon" style="color:#fd79a8">⊸</span> Step Functions
+    </a>
+    <a asp-controller="Services" asp-action="ELB" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "ELB" ? "active" : "")">
+        <span class="nav-icon" style="color:#6c5ce7">⊴</span> ELB v2
+    </a>
+    <a asp-controller="Services" asp-action="AutoScaling" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "AutoScaling" ? "active" : "")">
+        <span class="nav-icon" style="color:#00b894">↕</span> Auto Scaling
+    </a>
+
+    <div class="nav-section-label">SECURITY & IDENTITY</div>
+    <a asp-controller="Services" asp-action="KMS" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "KMS" ? "active" : "")">
+        <span class="nav-icon nav-icon--kms">⚿</span> KMS
+    </a>
+    <a asp-controller="Services" asp-action="IAM" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "IAM" ? "active" : "")">
+        <span class="nav-icon nav-icon--iam">👤</span> IAM
+    </a>
+    <a asp-controller="Services" asp-action="Cognito" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Cognito" ? "active" : "")">
+        <span class="nav-icon" style="color:#a29bfe">⊘</span> Cognito
+    </a>
+    <a asp-controller="Services" asp-action="SecretsManager" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "SecretsManager" ? "active" : "")">
+        <span class="nav-icon" style="color:#fd79a8">🔐</span> Secrets Manager
+    </a>
+
+    <div class="nav-section-label">MANAGEMENT</div>
+    <a asp-controller="Services" asp-action="SSM" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "SSM" ? "active" : "")">
+        <span class="nav-icon nav-icon--ssm">⚙</span> SSM
+    </a>
+    <a asp-controller="Services" asp-action="CloudFormation" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "CloudFormation" ? "active" : "")">
+        <span class="nav-icon" style="color:#e17055">⊞</span> CloudFormation
+    </a>
+    <a asp-controller="Services" asp-action="CloudWatch" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "CloudWatch" ? "active" : "")">
+        <span class="nav-icon" style="color:#fdcb6e">📊</span> CloudWatch
+    </a>
+    <a asp-controller="Services" asp-action="AppConfig" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "AppConfig" ? "active" : "")">
+        <span class="nav-icon" style="color:#74b9ff">⊗</span> AppConfig
+    </a>
+
+    <div class="nav-section-label">ANALYTICS</div>
+    <a asp-controller="Services" asp-action="Glue" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Glue" ? "active" : "")">
+        <span class="nav-icon" style="color:#6c5ce7">⋈</span> Glue
+    </a>
+    <a asp-controller="Services" asp-action="Athena" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Athena" ? "active" : "")">
+        <span class="nav-icon" style="color:#00cec9">⊛</span> Athena
+    </a>
+
+    <div class="nav-section-label">NETWORK & DELIVERY</div>
+    <a asp-controller="Services" asp-action="Route53" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Route53" ? "active" : "")">
+        <span class="nav-icon" style="color:#e84393">⊕</span> Route 53
+    </a>
+    <a asp-controller="Services" asp-action="Transfer" class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "Transfer" ? "active" : "")">
+        <span class="nav-icon" style="color:#00b894">⇄</span> Transfer Family
+    </a>
+
+    <div class="sidebar-footer">
+        <div class="endpoint-badge">
+            <span class="endpoint-dot"></span>
+            <span class="mono">localhost:4566</span>
+        </div>
+    </div>
+</nav>
+
+<div class="main-content">
+    <header class="topbar">
+        <div class="topbar-left">
+            <h1 class="page-title">@ViewData["Title"]</h1>
+        </div>
+        <div class="topbar-right">
+            <form asp-controller="Home" asp-action="SetRegion" method="post" style="display:flex;align-items:center;gap:6px">
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                <span style="opacity:0.6;font-size:14px">📍</span>
+                <select name="region" class="form-control mono"
+                        style="height:32px;padding:0 8px;font-size:12px;width:auto;min-width:130px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text)"
+                        onchange="this.form.submit()">
+                    @{
+                        var currentRegion = ViewBag.CurrentRegion as string ?? "us-east-1";
+                        var availableRegions = ViewBag.AvailableRegions as IEnumerable<string> ?? new[] { "us-east-1" };
+                    }
+                    @foreach (var r in availableRegions)
+                    {
+                        if (r == currentRegion)
+                        {
+                            <option value="@r" selected>@r</option>
+                        }
+                        else
+                        {
+                            <option value="@r">@r</option>
+                        }
+                    }
+                </select>
+            </form>
+            <div class="floci-badge">
+                <span class="badge-cloud">☁</span>
+                <span>Floci v0.x</span>
+            </div>
+        </div>
+    </header>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert--success">
+            <span>✓</span> @TempData["Success"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert--error">
+            <span>✕</span> @TempData["Error"]
+        </div>
+    }
+    @if (ViewBag.ServiceError != null)
+    {
+        <div class="alert alert--warn">
+            <span>⚠</span> Could not reach Floci: @ViewBag.ServiceError
+        </div>
+    }
+
+    <main class="page-body">
+        @RenderBody()
+    </main>
+</div>
+
+@RenderSection("Scripts", required: false)
+@RenderSection("Modals", required: false)
+</body>
+</html>

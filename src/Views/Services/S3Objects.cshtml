@@ -1,0 +1,61 @@
+@model List<S3ObjectInfo>
+@{
+    ViewData["Title"] = $"S3 — {ViewBag.Bucket}";
+    string bucket = ViewBag.Bucket;
+}
+
+<div class="service-header">
+    <div class="service-title">
+        <a asp-action="S3" class="btn btn--ghost btn--sm">← Back</a>
+        <span style="color:var(--s3)">▣</span>
+        <span class="mono">@bucket</span>
+        <span class="service-count">@Model.Count objects</span>
+    </div>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="table-wrap">
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div class="empty-title">Bucket is empty</div>
+            <div class="empty-sub">Upload objects via AWS SDK or CLI pointing to localhost:4566</div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Size</th>
+                    <th>Last Modified</th>
+                    <th>Storage Class</th>
+                    <th>ETag</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var obj in Model)
+                {
+                    <tr>
+                        <td class="mono">@obj.Key</td>
+                        <td class="mono">@obj.FormattedSize</td>
+                        <td class="text-dim mono">@obj.LastModified.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td><span class="badge badge--blue">@obj.StorageClass</span></td>
+                        <td class="mono text-dim" style="font-size:10px">@obj.ETag.Trim('"')</td>
+                        <td>
+                            <form asp-action="DeleteObject" method="post" onsubmit="return confirm('Delete object \'@obj.Key\'?')">
+                                <input type="hidden" name="bucket" value="@bucket" />
+                                <input type="hidden" name="key" value="@obj.Key" />
+                                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

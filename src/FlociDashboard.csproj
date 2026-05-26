@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>FlociDashboard</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.AppConfig" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.Athena" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.AutoScaling" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.Backup" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.CloudFormation" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.CodeBuild" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.CodeDeploy" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.ECR" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.ECS" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.ElastiCache" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.ElasticLoadBalancingV2" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.EventBridge" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.Glue" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.Kinesis" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.KinesisFirehose" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.OpenSearchService" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.RDS" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.Route53" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.Scheduler" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.Lambda" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.KeyManagementService" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.CloudWatch" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.StepFunctions" Version="3.7.*" />
+    <PackageReference Include="AWSSDK.Transfer" Version="3.7.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.*" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+
+</Project>

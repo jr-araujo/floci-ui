@@ -1,0 +1,47 @@
+@model List<FirehoseDeliveryStreamInfo>
+@{ViewData["Title"] = "Data Firehose";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#ff9f43">⊳</span> Delivery Streams <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal('createStream')">+ Create Delivery Stream</button>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⊳</div><div class="empty-title">No delivery streams yet</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Name</th><th>Status</th><th>Type</th><th>Created</th><th>ARN</th><th>Actions</th></tr></thead>
+<tbody>@foreach(var s in Model){<tr>
+<td class="mono">@s.Name</td>
+<td><span class="badge @(s.Status=="ACTIVE"?"badge--green":"badge--yellow")">@s.Status</span></td>
+<td><span class="badge badge--blue">@s.DeliveryStreamType</span></td>
+<td class="mono">@s.CreateTimestamp.ToString("yyyy-MM-dd")</td>
+<td><span class="arn">@s.Arn</span></td>
+<td><form asp-action="DeleteDeliveryStream" method="post" onsubmit="return confirm('Delete this stream?')">
+    <input type="hidden" name="name" value="@s.Name" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+</form></td>
+</tr>}</tbody></table></div>
+}
+@section Modals {
+<div class="modal-overlay" id="createStream"><div class="modal" style="max-width:520px"><div class="modal-title">Create Delivery Stream</div>
+<form asp-action="CreateDeliveryStream" method="post">
+    <div class="form-group"><label class="form-label">Stream Name</label><input name="DeliveryStreamName" class="form-control" required /></div>
+    <div class="form-group"><label class="form-label">Type</label>
+    <select name="DeliveryStreamType" class="form-control" onchange="toggleFirehoseSource(this)">
+        <option value="DirectPut">DirectPut</option>
+        <option value="KinesisStreamAsSource">KinesisStreamAsSource</option>
+    </select></div>
+    <div class="form-group"><label class="form-label">Destination</label>
+    <select name="DestinationType" class="form-control"><option value="S3">S3</option></select></div>
+    <div class="form-group"><label class="form-label">S3 Bucket ARN</label><input name="S3BucketArn" class="form-control mono" placeholder="arn:aws:s3:::my-bucket" /></div>
+    <div class="form-group" id="kinesisSourceGroup" style="display:none">
+        <label class="form-label">Kinesis Source Stream ARN</label><input name="KinesisSourceStreamArn" class="form-control mono" placeholder="arn:aws:kinesis:..." />
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createStream')">Cancel</button>
+    <button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+function toggleFirehoseSource(sel){document.getElementById('kinesisSourceGroup').style.display=sel.value==='KinesisStreamAsSource'?'':'none';}
+</script>}

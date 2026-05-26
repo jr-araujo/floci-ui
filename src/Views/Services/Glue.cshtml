@@ -1,0 +1,51 @@
+@model List<GlueDatabaseInfo>
+@{ViewData["Title"] = "Glue";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#6c5ce7">⋈</span> Glue Databases <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal('createDb')">+ Create Database</button>
+</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⋈</div><div class="empty-title">No Glue databases</div><div class="empty-sub">Create a Glue Data Catalog database to organize your data.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Database Name</th><th>Tables</th><th>Created</th><th>Description</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var db in Model)
+    {
+        <tr>
+        <td>
+            <a asp-action="GlueTables" asp-route-databaseName="@db.Name" class="mono link">@db.Name</a>
+        </td>
+        <td class="mono">@db.TableCount</td>
+        <td class="mono">@(db.CreateTime.HasValue ? db.CreateTime.Value.ToString("yyyy-MM-dd") : "—")</td>
+        <td class="text-dim">@db.Description</td>
+        <td>
+            <div class="action-row">
+            <a asp-action="GlueTables" asp-route-databaseName="@db.Name" class="btn btn--cyan btn--sm">Tables</a>
+            <form asp-action="DeleteGlueDatabase" method="post" onsubmit="return confirm('Delete database?')">
+                <input type="hidden" name="name" value="@db.Name" />
+                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+            </form>
+            </div>
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createDb"><div class="modal"><div class="modal-title">Create Glue Database</div>
+<form asp-action="CreateGlueDatabase" method="post">
+    <div class="form-group"><label class="form-label">Database Name</label><input name="Name" class="form-control" required placeholder="my_database" /></div>
+    <div class="form-group"><label class="form-label">Description</label><input name="Description" class="form-control" placeholder="Optional description" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createDb')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+</script>}

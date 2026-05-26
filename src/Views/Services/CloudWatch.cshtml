@@ -1,0 +1,77 @@
+@model List<CloudWatchAlarmInfo>
+@{
+    ViewData["Title"] = "CloudWatch";
+    var logGroups = ViewBag.LogGroups as List<CloudWatchLogGroupInfo> ?? new();
+}
+<div class="service-header">
+    <div class="service-title"><span style="color:#fdcb6e">📊</span> CloudWatch <span class="service-count">@Model.Count alarms</span></div>
+</div>
+
+<div class="section-title">ALARMS</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">No alarms</div><div class="empty-sub">Alarms monitor metrics and trigger actions when thresholds are breached.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Alarm Name</th><th>State</th><th>Metric</th><th>Namespace</th><th>Operator</th><th>Threshold</th></tr></thead>
+    <tbody>
+    @foreach (var a in Model)
+    {
+        <tr>
+        <td class="mono">@a.AlarmName</td>
+        <td><span class="badge @(a.StateValue=="OK"?"badge--green":a.StateValue=="ALARM"?"badge--red":"badge--yellow")">@a.StateValue</span></td>
+        <td class="mono">@a.MetricName</td>
+        <td class="mono">@a.Namespace</td>
+        <td class="mono" style="font-size:11px">@a.ComparisonOperator</td>
+        <td class="mono">@a.Threshold</td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+<div class="section-title" style="margin-top:32px">LOG GROUPS
+    <button class="btn btn--primary btn--sm" style="margin-left:12px" onclick="openModal('createLogGroup')">+ Create</button>
+</div>
+@if (logGroups.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No log groups</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Log Group Name</th><th>Retention (days)</th><th>Stored Bytes</th><th>Created</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var g in logGroups)
+    {
+        <tr>
+        <td class="mono">@g.LogGroupName</td>
+        <td class="mono">@(g.RetentionInDays.HasValue ? g.RetentionInDays.ToString() : "Never expire")</td>
+        <td class="mono">@g.StoredBytes</td>
+        <td class="mono">@(g.CreationTime.HasValue ? g.CreationTime.Value.ToString("yyyy-MM-dd") : "—")</td>
+        <td>
+            <form asp-action="DeleteLogGroup" method="post" onsubmit="return confirm('Delete log group?')">
+                <input type="hidden" name="name" value="@g.LogGroupName" />
+                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+            </form>
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createLogGroup"><div class="modal"><div class="modal-title">Create Log Group</div>
+<form asp-action="CreateLogGroup" method="post">
+    <div class="form-group"><label class="form-label">Log Group Name</label><input name="LogGroupName" class="form-control" required placeholder="/my-app/logs" /></div>
+    <div class="form-group"><label class="form-label">Retention (days, leave empty = never)</label>
+    <input name="RetentionInDays" type="number" class="form-control" placeholder="7" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createLogGroup')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+</script>}

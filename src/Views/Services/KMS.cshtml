@@ -1,0 +1,84 @@
+@model List<KmsKeyInfo>
+@{
+    ViewData["Title"] = "KMS — Keys";
+}
+
+<div class="service-header">
+    <div class="service-title">
+        <span style="color:var(--kms)">⚿</span>
+        KMS Keys
+        <span class="service-count">@Model.Count total</span>
+    </div>
+    <button class="btn btn--primary" onclick="openModal('createKey')">+ Create Key</button>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="table-wrap">
+        <div class="empty-state">
+            <div class="empty-icon">⚿</div>
+            <div class="empty-title">No keys found</div>
+            <div class="empty-sub">Create a KMS key for encryption and decryption operations</div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Key ID</th>
+                    <th>Description</th>
+                    <th>Usage</th>
+                    <th>State</th>
+                    <th>Created</th>
+                    <th>ARN</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var k in Model)
+                {
+                    <tr>
+                        <td class="mono" style="font-size:11px">@k.KeyId</td>
+                        <td class="text-dim">@(string.IsNullOrEmpty(k.Description) ? "—" : k.Description)</td>
+                        <td><span class="badge badge--orange">@k.KeyUsage</span></td>
+                        <td>
+                            <span class="badge @(k.KeyState == "Enabled" ? "badge--green" : k.KeyState == "Disabled" ? "badge--red" : "badge--yellow")">
+                                @k.KeyState
+                            </span>
+                        </td>
+                        <td class="mono text-dim">@k.CreationDate.ToString("yyyy-MM-dd")</td>
+                        <td><span class="arn">@k.Arn</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createKey">
+    <div class="modal">
+        <div class="modal-title">Create KMS Key</div>
+        <form asp-action="CreateKey" method="post">
+            <div class="form-group">
+                <label class="form-label">Description (optional)</label>
+                <input name="description" class="form-control" placeholder="My encryption key" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--ghost" onclick="closeModal('createKey')">Cancel</button>
+                <button type="submit" class="btn btn--primary">Create Key</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+@section Scripts {
+<script>
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); }));
+</script>
+}

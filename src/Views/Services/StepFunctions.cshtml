@@ -1,0 +1,62 @@
+@model List<StateMachineInfo>
+@{ViewData["Title"] = "Step Functions";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#fd79a8">⊸</span> State Machines <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal('createMachine')">+ Create State Machine</button>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⊸</div><div class="empty-title">No state machines yet</div><div class="empty-sub">Create a Step Functions state machine to orchestrate workflows</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Created</th><th>ARN</th><th>Actions</th></tr></thead>
+<tbody>@foreach(var m in Model){<tr>
+<td class="mono">@m.Name</td>
+<td><span class="badge badge--blue">@m.Type</span></td>
+<td><span class="badge badge--green">@m.Status</span></td>
+<td class="mono">@m.CreationDate.ToString("yyyy-MM-dd")</td>
+<td><span class="arn">@m.Arn</span></td>
+<td><div class="action-row">
+    <button class="btn btn--green btn--sm" onclick="openStartModal('@m.Arn', '@m.Name')">▶ Start</button>
+    <form asp-action="DeleteStateMachine" method="post" onsubmit="return confirm('Delete state machine?')">
+        <input type="hidden" name="arn" value="@m.Arn" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+    </form>
+</div></td>
+</tr>}</tbody></table></div>
+}
+@section Modals {
+<div class="modal-overlay" id="createMachine"><div class="modal" style="max-width:600px"><div class="modal-title">Create State Machine</div>
+<form asp-action="CreateStateMachine" method="post">
+    <div class="form-group"><label class="form-label">Name</label><input name="Name" class="form-control" required /></div>
+    <div class="form-group"><label class="form-label">Type</label>
+    <select name="Type" class="form-control">
+        <option value="STANDARD">STANDARD</option>
+        <option value="EXPRESS">EXPRESS</option>
+    </select></div>
+    <div class="form-group"><label class="form-label">IAM Role ARN (leave empty to use default)</label><input name="RoleArn" class="form-control mono" placeholder="arn:aws:iam::000000000000:role/sfn-role" /></div>
+    <div class="form-group"><label class="form-label">State Machine Definition (ASL JSON)</label>
+    <textarea name="Definition" class="form-control mono" rows="10" required>{"Comment":"My state machine","StartAt":"HelloWorld","States":{"HelloWorld":{"Type":"Pass","End":true}}}</textarea></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createMachine')">Cancel</button>
+    <button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+<div class="modal-overlay" id="startExecution"><div class="modal"><div class="modal-title">Start Execution — <span id="startMachineName"></span></div>
+<form asp-action="StartExecution" method="post">
+    <input type="hidden" name="StateMachineArn" id="startMachineArn" />
+    <input type="hidden" name="StateMachineName" id="startMachineNameHidden" />
+    <div class="form-group"><label class="form-label">Execution Name (optional)</label><input name="ExecutionName" class="form-control" placeholder="my-execution-1" /></div>
+    <div class="form-group"><label class="form-label">Input (JSON)</label>
+    <textarea name="Input" class="form-control mono" rows="5">{}</textarea></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('startExecution')">Cancel</button>
+    <button type="submit" class="btn btn--green">Start</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+function openStartModal(arn, name){
+    document.getElementById('startMachineArn').value=arn;
+    document.getElementById('startMachineName').textContent=name;
+    document.getElementById('startMachineNameHidden').value=name;
+    openModal('startExecution');
+}
+</script>}

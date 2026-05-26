@@ -1,0 +1,57 @@
+@model List<SsmParameterInfo>
+@{ViewData["Title"] = "SSM — Parameter Store";}
+<div class="service-header">
+    <div class="service-title"><span style="color:var(--ssm)">⚙</span> SSM Parameters <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal(''putParam'')">+ Put Parameter</button>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⚙</div><div class="empty-title">No parameters yet</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Name</th><th>Type</th><th>Version</th><th>Last Modified</th><th>Description</th><th>Actions</th></tr></thead>
+<tbody>
+@foreach (var p in Model) {
+<tr>
+<td class="mono">@p.Name</td>
+<td><span class="badge badge--blue">@p.Type</span></td>
+<td class="mono">@p.Version</td>
+<td class="mono">@p.LastModifiedDate.ToString("yyyy-MM-dd HH:mm")</td>
+<td class="text-dim">@p.Description</td>
+<td><form asp-action="DeleteParameter" method="post" onsubmit="return confirm(''Delete \''@p.Name\''?'')">
+    <input type="hidden" name="name" value="@p.Name" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+</form></td>
+</tr>
+}
+</tbody></table></div>
+}
+@section Modals {
+<div class="modal-overlay" id="putParam"><div class="modal" style="max-width:520px">
+    <div class="modal-title">Put Parameter</div>
+    <form asp-action="PutParameter" method="post">
+        <div class="form-group"><label class="form-label">Name</label><input name="Name" class="form-control mono" placeholder="/app/config/key" required /></div>
+        <div class="form-group"><label class="form-label">Type</label>
+        <select name="Type" class="form-control">
+            <option value="String">String</option>
+            <option value="StringList">StringList</option>
+            <option value="SecureString">SecureString</option>
+        </select></div>
+        <div class="form-group"><label class="form-label">Value</label>
+        <textarea name="Value" class="form-control mono" rows="4" placeholder="parameter value" required></textarea></div>
+        <div class="form-group"><label class="form-label">Description (optional)</label><input name="Description" class="form-control" /></div>
+        <div class="form-group"><label class="form-check">
+            <input type="checkbox" name="Overwrite" value="true" checked /> Overwrite if exists
+        </label></div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn--ghost" onclick="closeModal(''putParam'')">Cancel</button>
+            <button type="submit" class="btn btn--primary">Save</button>
+        </div>
+    </form>
+</div></div>
+}
+@section Scripts {
+<script>
+function openModal(id){document.getElementById(id).classList.add(''open'');}
+function closeModal(id){document.getElementById(id).classList.remove(''open'');}
+document.querySelectorAll(''.modal-overlay'').forEach(m=>m.addEventListener(''click'',e=>{if(e.target===m)m.classList.remove(''open'');}));
+</script>
+}

@@ -1,0 +1,56 @@
+@model List<KinesisStreamInfo>
+@{ViewData["Title"] = "Kinesis — Data Streams";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#ff6b6b">≋</span> Kinesis Streams <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal(''createStream'')">+ Create Stream</button>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">≋</div><div class="empty-title">No streams yet</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Name</th><th>Status</th><th>Shards</th><th>Mode</th><th>Created</th><th>ARN</th><th>Actions</th></tr></thead>
+<tbody>@foreach(var s in Model){<tr>
+<td class="mono">@s.Name</td>
+<td><span class="badge @(s.Status=="ACTIVE"?"badge--green":"badge--yellow")">@s.Status</span></td>
+<td class="mono">@s.ShardCount</td>
+<td><span class="badge badge--blue">@s.StreamMode</span></td>
+<td class="mono">@s.CreationTimestamp.ToString("yyyy-MM-dd")</td>
+<td><span class="arn">@s.Arn</span></td>
+<td><div class="action-row">
+    <button class="btn btn--green btn--sm" onclick="openPutModal(''@s.Name'')">Put Record</button>
+    <form asp-action="DeleteStream" method="post" onsubmit="return confirm(''Delete stream \''@s.Name\''?'')">
+        <input type="hidden" name="name" value="@s.Name" /><button type="submit" class="btn btn--danger btn--sm">Delete</button>
+    </form>
+</div></td>
+</tr>}</tbody></table></div>
+}
+@section Modals {
+<div class="modal-overlay" id="createStream"><div class="modal"><div class="modal-title">Create Kinesis Stream</div>
+<form asp-action="CreateStream" method="post">
+    <div class="form-group"><label class="form-label">Stream Name</label><input name="StreamName" class="form-control" required /></div>
+    <div class="form-group"><label class="form-label">Stream Mode</label>
+    <select name="StreamMode" id="streamModeSelect" class="form-control" onchange="toggleShards()">
+        <option value="PROVISIONED">PROVISIONED</option>
+        <option value="ON_DEMAND">ON_DEMAND</option>
+    </select></div>
+    <div class="form-group" id="shardCountGroup"><label class="form-label">Shard Count</label>
+    <input name="ShardCount" type="number" class="form-control" value="1" min="1" max="200" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal(''createStream'')">Cancel</button>
+    <button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+<div class="modal-overlay" id="putRecord"><div class="modal"><div class="modal-title">Put Record to <span id="putStreamName"></span></div>
+<form asp-action="PutKinesisRecord" method="post">
+    <input type="hidden" name="StreamName" id="putStreamNameHidden" />
+    <div class="form-group"><label class="form-label">Partition Key</label><input name="PartitionKey" class="form-control" value="default" required /></div>
+    <div class="form-group"><label class="form-label">Data</label><textarea name="Data" class="form-control mono" rows="5" placeholder=''{"event":"click"}'' required></textarea></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal(''putRecord'')">Cancel</button>
+    <button type="submit" class="btn btn--primary">Put</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add(''open'');}
+function closeModal(id){document.getElementById(id).classList.remove(''open'');}
+document.querySelectorAll(''.modal-overlay'').forEach(m=>m.addEventListener(''click'',e=>{if(e.target===m)m.classList.remove(''open'');}));
+function openPutModal(name){document.getElementById(''putStreamName'').textContent=name;document.getElementById(''putStreamNameHidden'').value=name;openModal(''putRecord'');}
+function toggleShards(){document.getElementById(''shardCountGroup'').style.display=document.getElementById(''streamModeSelect'').value===''ON_DEMAND''?''none'':'''';}
+</script>}

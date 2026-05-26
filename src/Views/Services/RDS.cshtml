@@ -1,0 +1,59 @@
+@model List<RdsInstanceInfo>
+@{ViewData["Title"] = "RDS";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#4ecdc4">⊞</span> RDS <span class="service-count">@Model.Count instances</span></div>
+    <button class="btn btn--primary" onclick="openModal('createInstance')">+ Create Instance</button>
+</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⊞</div><div class="empty-title">No DB instances</div><div class="empty-sub">Create an RDS database instance to get started.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Instance ID</th><th>Engine</th><th>Class</th><th>Endpoint</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var r in Model)
+    {
+        <tr>
+        <td class="mono">@r.DBInstanceIdentifier</td>
+        <td><span class="badge badge--cyan">@r.Engine @r.EngineVersion</span></td>
+        <td class="mono">@r.DBInstanceClass</td>
+        <td class="mono" style="font-size:11px">@r.Endpoint:@r.Port</td>
+        <td><span class="badge @(r.DBInstanceStatus=="available"?"badge--green":"badge--yellow")">@r.DBInstanceStatus</span></td>
+        <td>
+            <form asp-action="DeleteDbInstance" method="post" onsubmit="return confirm('Delete DB instance?')">
+                <input type="hidden" name="id" value="@r.DBInstanceIdentifier" />
+                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+            </form>
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createInstance"><div class="modal" style="max-width:520px"><div class="modal-title">Create DB Instance</div>
+<form asp-action="CreateDbInstance" method="post">
+    <div class="form-group"><label class="form-label">Instance Identifier</label><input name="DBInstanceIdentifier" class="form-control" required placeholder="my-postgres" /></div>
+    <div class="form-group"><label class="form-label">Engine</label>
+    <select name="Engine" class="form-control"><option value="postgres">PostgreSQL</option><option value="mysql">MySQL</option><option value="mariadb">MariaDB</option><option value="sqlserver-ex">SQL Server Express</option></select></div>
+    <div class="form-group"><label class="form-label">Engine Version</label><input name="EngineVersion" class="form-control" value="15" /></div>
+    <div class="form-group"><label class="form-label">Instance Class</label>
+    <select name="DBInstanceClass" class="form-control">
+        <option value="db.t3.micro">db.t3.micro</option>
+        <option value="db.t3.small">db.t3.small</option>
+        <option value="db.t3.medium">db.t3.medium</option>
+    </select></div>
+    <div class="form-group"><label class="form-label">DB Name (optional)</label><input name="DBName" class="form-control" placeholder="mydb" /></div>
+    <div class="form-group"><label class="form-label">Master Username</label><input name="MasterUsername" class="form-control" value="admin" required /></div>
+    <div class="form-group"><label class="form-label">Master Password</label><input name="MasterUserPassword" type="password" class="form-control" required /></div>
+    <div class="form-group"><label class="form-label">Allocated Storage (GB)</label><input name="AllocatedStorage" type="number" class="form-control" value="20" min="5" max="6144" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createInstance')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+</script>}

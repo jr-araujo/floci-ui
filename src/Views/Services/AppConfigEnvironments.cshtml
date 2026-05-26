@@ -1,0 +1,47 @@
+@model List<AppConfigEnvironmentInfo>
+@{
+    ViewData["Title"] = $"AppConfig — {ViewBag.AppName}";
+    string appId = ViewBag.ApplicationId ?? "";
+    string appName = ViewBag.AppName ?? appId;
+}
+<div class="service-header">
+    <div>
+        <div class="service-title"><span style="color:#74b9ff">⊗</span> Environments — <span class="mono">@appName</span> <span class="service-count">@Model.Count total</span></div>
+        <a asp-action="AppConfig" style="font-size:12px;color:var(--text-dim)">← Back to Applications</a>
+    </div>
+    <button class="btn btn--primary" onclick="openModal('createEnv')">+ Create Environment</button>
+</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⊗</div><div class="empty-title">No environments</div><div class="empty-sub">Create environments such as dev, staging, or production.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Environment Name</th><th>ID</th><th>State</th></tr></thead>
+    <tbody>
+    @foreach (var e in Model)
+    {
+        <tr>
+        <td class="mono">@e.Name</td>
+        <td class="mono" style="font-size:11px">@e.Id</td>
+        <td><span class="badge @(e.State=="ReadyForDeployment"?"badge--green":"badge--yellow")">@e.State</span></td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createEnv"><div class="modal"><div class="modal-title">Create Environment</div>
+<form asp-action="CreateAppConfigEnvironment" method="post">
+    <input type="hidden" name="ApplicationId" value="@appId" />
+    <div class="form-group"><label class="form-label">Name</label><input name="Name" class="form-control" required placeholder="production" /></div>
+    <div class="form-group"><label class="form-label">Description</label><input name="Description" class="form-control" placeholder="Optional description" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createEnv')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+</script>}

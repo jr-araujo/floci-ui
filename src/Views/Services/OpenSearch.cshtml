@@ -1,0 +1,53 @@
+@model List<OpenSearchDomainInfo>
+@{ViewData["Title"] = "OpenSearch";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#ffd93d">⊛</span> OpenSearch Domains <span class="service-count">@Model.Count total</span></div>
+    <button class="btn btn--primary" onclick="openModal('createDomain')">+ Create Domain</button>
+</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">⊛</div><div class="empty-title">No OpenSearch domains</div><div class="empty-sub">Create an OpenSearch domain for search and analytics.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Domain Name</th><th>Engine Version</th><th>Endpoint</th><th>Processing</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var d in Model)
+    {
+        <tr>
+        <td class="mono">@d.DomainName</td>
+        <td><span class="badge badge--cyan">@d.EngineVersion</span></td>
+        <td class="mono" style="font-size:11px">@(string.IsNullOrEmpty(d.Endpoint) ? "—" : d.Endpoint)</td>
+        <td><span class="badge @(d.Processing?"badge--yellow":"badge--green")">@(d.Processing ? "Processing" : "Active")</span></td>
+        <td>
+            <form asp-action="DeleteOpenSearchDomain" method="post" onsubmit="return confirm('Delete domain?')">
+                <input type="hidden" name="name" value="@d.DomainName" />
+                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+            </form>
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
+
+@section Modals {
+<div class="modal-overlay" id="createDomain"><div class="modal"><div class="modal-title">Create OpenSearch Domain</div>
+<form asp-action="CreateOpenSearchDomain" method="post">
+    <div class="form-group"><label class="form-label">Domain Name</label><input name="DomainName" class="form-control" required placeholder="my-search" /></div>
+    <div class="form-group"><label class="form-label">Engine Version</label><input name="EngineVersion" class="form-control" value="OpenSearch_2.11" /></div>
+    <div class="form-group"><label class="form-label">Instance Type</label>
+    <select name="InstanceType" class="form-control">
+        <option value="t3.small.search">t3.small.search</option>
+        <option value="t3.medium.search">t3.medium.search</option>
+        <option value="r6g.large.search">r6g.large.search</option>
+    </select></div>
+    <div class="form-group"><label class="form-label">Instance Count</label><input name="InstanceCount" type="number" class="form-control" value="1" min="1" /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal('createDomain')">Cancel</button><button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+</script>}

@@ -1,0 +1,37 @@
+@model List<CognitoUserInfo>
+@{ViewData["Title"] = "Cognito — Users in " + ViewBag.PoolName;}
+<div class="service-header">
+    <div class="service-title"><span style="color:#a29bfe">⊘</span> Users in <span style="color:#fff">@ViewBag.PoolName</span> <span class="service-count">@Model.Count total</span></div>
+    <div class="action-row">
+        <a asp-action="Cognito" class="btn btn--ghost">← Back to Pools</a>
+        <button class="btn btn--primary" onclick="openModal(''createUser'')">+ Create User</button>
+    </div>
+</div>
+@if (Model.Count == 0) {
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">👤</div><div class="empty-title">No users in this pool</div></div></div>
+} else {
+<div class="table-wrap"><table>
+<thead><tr><th>Username</th><th>Status</th><th>Created</th><th>Attributes</th></tr></thead>
+<tbody>@foreach(var u in Model){<tr>
+<td class="mono">@u.Username</td>
+<td><span class="badge @(u.UserStatus=="CONFIRMED"?"badge--green":"badge--yellow")">@u.UserStatus</span></td>
+<td class="mono">@u.UserCreateDate.ToString("yyyy-MM-dd")</td>
+<td class="text-dim" style="font-size:12px">@string.Join(", ", u.Attributes)</td>
+</tr>}</tbody></table></div>
+}
+@section Modals {
+<div class="modal-overlay" id="createUser"><div class="modal"><div class="modal-title">Create User</div>
+<form asp-action="CreateCognitoUser" method="post">
+    <input type="hidden" name="UserPoolId" value="@ViewBag.UserPoolId" />
+    <div class="form-group"><label class="form-label">Username</label><input name="Username" class="form-control" required /></div>
+    <div class="form-group"><label class="form-label">Email (optional)</label><input name="Email" type="email" class="form-control" /></div>
+    <div class="form-group"><label class="form-label">Temporary Password</label><input name="TemporaryPassword" type="password" class="form-control" required /></div>
+    <div class="modal-footer"><button type="button" class="btn btn--ghost" onclick="closeModal(''createUser'')">Cancel</button>
+    <button type="submit" class="btn btn--primary">Create</button></div>
+</form></div></div>
+}
+@section Scripts {<script>
+function openModal(id){document.getElementById(id).classList.add(''open'');}
+function closeModal(id){document.getElementById(id).classList.remove(''open'');}
+document.querySelectorAll(''.modal-overlay'').forEach(m=>m.addEventListener(''click'',e=>{if(e.target===m)m.classList.remove(''open'');}));
+</script>}

@@ -1,0 +1,33 @@
+@model List<AutoScalingGroupInfo>
+@{ViewData["Title"] = "Auto Scaling";}
+<div class="service-header">
+    <div class="service-title"><span style="color:#00b894">↕</span> Auto Scaling Groups <span class="service-count">@Model.Count total</span></div>
+</div>
+@if (Model.Count == 0)
+{
+    <div class="table-wrap"><div class="empty-state"><div class="empty-icon">↕</div><div class="empty-title">No Auto Scaling groups</div><div class="empty-sub">Auto Scaling groups are typically created via CloudFormation or the AWS SDK.</div></div></div>
+}
+else
+{
+    <div class="table-wrap"><table>
+    <thead><tr><th>Group Name</th><th>Min</th><th>Desired</th><th>Max</th><th>Status</th><th>Availability Zones</th><th>Actions</th></tr></thead>
+    <tbody>
+    @foreach (var g in Model)
+    {
+        <tr>
+        <td class="mono">@g.AutoScalingGroupName</td>
+        <td class="mono">@g.MinSize</td>
+        <td class="mono">@g.DesiredCapacity</td>
+        <td class="mono">@g.MaxSize</td>
+        <td><span class="badge badge--green">@g.Status</span></td>
+        <td class="text-dim" style="font-size:11px">@string.Join(", ", g.AvailabilityZones)</td>
+        <td>
+            <form asp-action="DeleteAutoScalingGroup" method="post" onsubmit="return confirm('Force delete Auto Scaling group?')">
+                <input type="hidden" name="name" value="@g.AutoScalingGroupName" />
+                <button type="submit" class="btn btn--danger btn--sm">Delete</button>
+            </form>
+        </td>
+        </tr>
+    }
+    </tbody></table></div>
+}
