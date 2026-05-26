@@ -12,7 +12,7 @@ public class FlociServiceDynamoTests
     private readonly FlociServiceBuilder _builder = new();
 
     [Fact]
-    public async Task ListTablesAsync_ReturnsMappedTables()
+    public async Task GivenExistingTables_WhenListTablesAsync_ThenReturnsMappedTables()
     {
         _builder.DynamoDB
             .Setup(d => d.ListTablesAsync(It.IsAny<CancellationToken>()))
@@ -45,7 +45,7 @@ public class FlociServiceDynamoTests
     }
 
     [Fact]
-    public async Task ListTablesAsync_WhenDescribeFails_ReturnsUnknownStatus()
+    public async Task GivenDescribeFails_WhenListTablesAsync_ThenReturnsUnknownStatus()
     {
         _builder.DynamoDB
             .Setup(d => d.ListTablesAsync(It.IsAny<CancellationToken>()))
@@ -64,7 +64,7 @@ public class FlociServiceDynamoTests
     }
 
     [Fact]
-    public async Task CreateTableAsync_WithPartitionKeyOnly_CallsCreateTable()
+    public async Task GivenPartitionKeyOnly_WhenCreateTableAsync_ThenCallsCreateTableWithHashKey()
     {
         _builder.DynamoDB
             .Setup(d => d.CreateTableAsync(It.IsAny<CreateTableRequest>(), It.IsAny<CancellationToken>()))
@@ -82,7 +82,7 @@ public class FlociServiceDynamoTests
     }
 
     [Fact]
-    public async Task CreateTableAsync_WithSortKey_AddsRangeKeyToSchema()
+    public async Task GivenSortKey_WhenCreateTableAsync_ThenAddsRangeKeyToSchema()
     {
         _builder.DynamoDB
             .Setup(d => d.CreateTableAsync(It.IsAny<CreateTableRequest>(), It.IsAny<CancellationToken>()))
@@ -99,7 +99,7 @@ public class FlociServiceDynamoTests
     }
 
     [Fact]
-    public async Task CreateTableAsync_WithStreamsEnabled_SetsStreamSpecification()
+    public async Task GivenStreamsEnabled_WhenCreateTableAsync_ThenSetsStreamSpecification()
     {
         _builder.DynamoDB
             .Setup(d => d.CreateTableAsync(It.IsAny<CreateTableRequest>(), It.IsAny<CancellationToken>()))
@@ -116,7 +116,7 @@ public class FlociServiceDynamoTests
     }
 
     [Fact]
-    public async Task DeleteTableAsync_CallsDeleteWithCorrectName()
+    public async Task GivenTableName_WhenDeleteTableAsync_ThenCallsDeleteWithCorrectName()
     {
         _builder.DynamoDB
             .Setup(d => d.DeleteTableAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))

@@ -25,7 +25,7 @@ public class RegionServiceTests
     }
 
     [Fact]
-    public void CurrentRegion_WhenSessionHasValue_ReturnsSessionValue()
+    public void GivenSessionRegionValue_WhenGetCurrentRegion_ThenReturnsSessionValue()
     {
         var regionBytes = "eu-west-1"u8.ToArray();
         _session.Setup(s => s.TryGetValue("SelectedRegion", out regionBytes)).Returns(true);
@@ -36,7 +36,7 @@ public class RegionServiceTests
     }
 
     [Fact]
-    public void CurrentRegion_WhenSessionIsEmpty_ReturnsConfigValue()
+    public void GivenEmptySessionAndConfiguredRegion_WhenGetCurrentRegion_ThenReturnsConfigValue()
     {
         byte[]? noValue = null;
         _session.Setup(s => s.TryGetValue("SelectedRegion", out noValue)).Returns(false);
@@ -50,7 +50,7 @@ public class RegionServiceTests
     }
 
     [Fact]
-    public void CurrentRegion_WhenSessionAndConfigAreMissing_ReturnsFallbackRegion()
+    public void GivenEmptySessionAndMissingConfig_WhenGetCurrentRegion_ThenReturnsFallbackRegion()
     {
         byte[]? noValue = null;
         _session.Setup(s => s.TryGetValue("SelectedRegion", out noValue)).Returns(false);
@@ -61,7 +61,7 @@ public class RegionServiceTests
     }
 
     [Fact]
-    public void CurrentRegion_Set_WritesToSession()
+    public void GivenRegionValue_WhenSetCurrentRegion_ThenWritesToSession()
     {
         var service = CreateService();
         service.CurrentRegion = "sa-east-1";
@@ -73,7 +73,7 @@ public class RegionServiceTests
     }
 
     [Fact]
-    public void BuildArn_ReturnsCorrectlyFormattedArn()
+    public void GivenRegionConfiguration_WhenBuildArn_ThenReturnsCorrectlyFormattedArn()
     {
         byte[]? noValue = null;
         _session.Setup(s => s.TryGetValue("SelectedRegion", out noValue)).Returns(false);
@@ -88,7 +88,7 @@ public class RegionServiceTests
     }
 
     [Fact]
-    public void AvailableRegions_WhenConfigured_ReturnsConfiguredList()
+    public void GivenConfiguredAvailableRegions_WhenGetAvailableRegions_ThenReturnsConfiguredList()
     {
         var regions = new List<string> { "us-east-1", "eu-west-1" };
         var service = CreateService(new Dictionary<string, string?>
@@ -101,7 +101,7 @@ public class RegionServiceTests
     }
 
     [Fact]
-    public void AvailableRegions_WhenConfigMissing_ReturnsFallbackList()
+    public void GivenMissingAvailableRegionsConfiguration_WhenGetAvailableRegions_ThenReturnsFallbackList()
     {
         var service = CreateService();
 
@@ -109,7 +109,7 @@ public class RegionServiceTests
     }
 
     [Fact]
-    public void AccountId_ReturnsExpectedValue()
+    public void WhenGetAccountId_ThenReturnsExpectedValue()
     {
         var service = CreateService();
 

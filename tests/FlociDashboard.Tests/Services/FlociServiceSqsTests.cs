@@ -12,7 +12,7 @@ public class FlociServiceSqsTests
     private readonly FlociServiceBuilder _builder = new();
 
     [Fact]
-    public async Task ListQueuesAsync_ReturnsMappedQueues()
+    public async Task GivenQueueAttributes_WhenListQueuesAsync_ThenReturnsMappedQueues()
     {
         _builder.SQS
             .Setup(s => s.ListQueuesAsync(It.IsAny<ListQueuesRequest>(), It.IsAny<CancellationToken>()))
@@ -47,7 +47,7 @@ public class FlociServiceSqsTests
     }
 
     [Fact]
-    public async Task ListQueuesAsync_WhenGetAttributesFails_ReturnsQueueWithName()
+    public async Task GivenAttributeReadFails_WhenListQueuesAsync_ThenReturnsQueueWithName()
     {
         _builder.SQS
             .Setup(s => s.ListQueuesAsync(It.IsAny<ListQueuesRequest>(), It.IsAny<CancellationToken>()))
@@ -68,7 +68,7 @@ public class FlociServiceSqsTests
     }
 
     [Fact]
-    public async Task ListQueuesAsync_FifoQueue_SetsIsFifoTrue()
+    public async Task GivenFifoQueueUrl_WhenListQueuesAsync_ThenSetsIsFifoTrue()
     {
         _builder.SQS
             .Setup(s => s.ListQueuesAsync(It.IsAny<ListQueuesRequest>(), It.IsAny<CancellationToken>()))
@@ -88,7 +88,7 @@ public class FlociServiceSqsTests
     }
 
     [Fact]
-    public async Task CreateQueueAsync_StandardQueue_CallsCreateQueueWithCorrectName()
+    public async Task GivenStandardQueueModel_WhenCreateQueueAsync_ThenCallsCreateQueueWithCorrectName()
     {
         _builder.SQS
             .Setup(s => s.CreateQueueAsync(It.IsAny<CreateQueueRequest>(), It.IsAny<CancellationToken>()))
@@ -105,7 +105,7 @@ public class FlociServiceSqsTests
     }
 
     [Fact]
-    public async Task CreateQueueAsync_FifoQueue_AppendsFifoSuffix()
+    public async Task GivenFifoQueueModel_WhenCreateQueueAsync_ThenAppendsFifoSuffix()
     {
         _builder.SQS
             .Setup(s => s.CreateQueueAsync(It.IsAny<CreateQueueRequest>(), It.IsAny<CancellationToken>()))
@@ -122,7 +122,7 @@ public class FlociServiceSqsTests
     }
 
     [Fact]
-    public async Task DeleteQueueAsync_CallsDeleteWithCorrectUrl()
+    public async Task GivenQueueUrl_WhenDeleteQueueAsync_ThenCallsDeleteWithCorrectUrl()
     {
         _builder.SQS
             .Setup(s => s.DeleteQueueAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -137,7 +137,7 @@ public class FlociServiceSqsTests
     }
 
     [Fact]
-    public async Task ReceiveMessagesAsync_ReturnsMappedMessages()
+    public async Task GivenReceivedMessages_WhenReceiveMessagesAsync_ThenReturnsMappedMessages()
     {
         var sentAt = DateTimeOffset.UtcNow;
 
@@ -175,7 +175,7 @@ public class FlociServiceSqsTests
     }
 
     [Fact]
-    public async Task SendMessageAsync_CallsSendWithCorrectBody()
+    public async Task GivenSendMessageModel_WhenSendMessageAsync_ThenCallsSendWithCorrectBody()
     {
         _builder.SQS
             .Setup(s => s.SendMessageAsync(It.IsAny<SendMessageRequest>(), It.IsAny<CancellationToken>()))
@@ -192,7 +192,7 @@ public class FlociServiceSqsTests
     }
 
     [Fact]
-    public async Task DeleteMessageAsync_CallsDeleteWithCorrectReceiptHandle()
+    public async Task GivenQueueAndReceiptHandle_WhenDeleteMessageAsync_ThenCallsDeleteWithCorrectReceiptHandle()
     {
         _builder.SQS
             .Setup(s => s.DeleteMessageAsync(It.IsAny<DeleteMessageRequest>(), It.IsAny<CancellationToken>()))

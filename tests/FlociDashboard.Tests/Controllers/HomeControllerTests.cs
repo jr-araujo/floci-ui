@@ -48,7 +48,7 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public async Task Index_ReturnsViewWithDashboardSummary()
+    public async Task GivenValidDependencies_WhenIndex_ThenReturnsViewWithDashboardSummary()
     {
         SetupAllCountMocks();
         var controller = CreateController();
@@ -60,7 +60,7 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public async Task Index_WhenServiceThrows_ReturnsViewWithEmptySummary()
+    public async Task GivenServiceThrows_WhenIndex_ThenReturnsViewWithEmptySummary()
     {
         _builder.S3
             .Setup(s => s.ListBucketsAsync(It.IsAny<CancellationToken>()))
@@ -74,7 +74,7 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public async Task Index_SetsFlociEndpointInViewBag()
+    public async Task GivenConfiguredServiceUrl_WhenIndex_ThenSetsFlociEndpointInViewBag()
     {
         SetupAllCountMocks();
         _builder.WithConfigValue("Floci:ServiceUrl", "http://localhost:4566");
@@ -86,7 +86,7 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public async Task Index_SetsCurrentRegionInViewBag()
+    public async Task GivenDefaultRegionConfiguration_WhenIndex_ThenSetsCurrentRegionInViewBag()
     {
         SetupAllCountMocks();
         var controller = CreateController();
@@ -97,7 +97,7 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public void SetRegion_RedirectsToIndex()
+    public void GivenNoReturnUrl_WhenSetRegion_ThenRedirectsToIndex()
     {
         var controller = CreateController();
 
@@ -108,7 +108,7 @@ public class HomeControllerTests
     }
 
     [Fact]
-    public void SetRegion_WithValidReturnUrl_RedirectsToReturnUrl()
+    public void GivenLocalReturnUrl_WhenSetRegion_ThenRedirectsToReturnUrl()
     {
         var session = new Mock<ISession>();
         var httpContext = new Mock<HttpContext>();

@@ -56,7 +56,7 @@ public class ServicesControllerTests
     // ─── S3 ──────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task S3_ReturnsViewWithBuckets()
+    public async Task GivenBuckets_WhenS3_ThenReturnsViewWithBuckets()
     {
         _builder.S3
             .Setup(s => s.ListBucketsAsync(It.IsAny<CancellationToken>()))
@@ -77,7 +77,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task S3_WhenServiceFails_ReturnsViewWithEmptyList()
+    public async Task GivenS3ServiceFailure_WhenS3_ThenReturnsViewWithEmptyList()
     {
         _builder.S3
             .Setup(s => s.ListBucketsAsync(It.IsAny<CancellationToken>()))
@@ -92,7 +92,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task CreateBucket_OnSuccess_SetsTempDataAndRedirects()
+    public async Task GivenCreateBucketSucceeds_WhenCreateBucket_ThenSetsSuccessTempDataAndRedirects()
     {
         _builder.S3
             .Setup(s => s.PutBucketAsync(It.IsAny<PutBucketRequest>(), It.IsAny<CancellationToken>()))
@@ -107,7 +107,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task CreateBucket_OnFailure_SetsTempDataErrorAndRedirects()
+    public async Task GivenCreateBucketFails_WhenCreateBucket_ThenSetsErrorTempDataAndRedirects()
     {
         _builder.S3
             .Setup(s => s.PutBucketAsync(It.IsAny<PutBucketRequest>(), It.IsAny<CancellationToken>()))
@@ -122,7 +122,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task DeleteBucket_OnSuccess_SetsTempDataAndRedirects()
+    public async Task GivenDeleteBucketSucceeds_WhenDeleteBucket_ThenSetsSuccessTempDataAndRedirects()
     {
         _builder.S3
             .Setup(s => s.DeleteBucketAsync(It.IsAny<DeleteBucketRequest>(), It.IsAny<CancellationToken>()))
@@ -139,7 +139,7 @@ public class ServicesControllerTests
     // ─── DynamoDB ────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task DynamoDB_ReturnsViewWithTables()
+    public async Task GivenTables_WhenDynamoDB_ThenReturnsViewWithTables()
     {
         _builder.DynamoDB
             .Setup(d => d.ListTablesAsync(It.IsAny<CancellationToken>()))
@@ -165,7 +165,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task CreateTable_OnSuccess_SetsTempDataAndRedirects()
+    public async Task GivenCreateTableSucceeds_WhenCreateTable_ThenSetsSuccessTempDataAndRedirects()
     {
         _builder.DynamoDB
             .Setup(d => d.CreateTableAsync(It.IsAny<CreateTableRequest>(), It.IsAny<CancellationToken>()))
@@ -180,7 +180,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task DeleteTable_OnSuccess_SetsTempDataAndRedirects()
+    public async Task GivenDeleteTableSucceeds_WhenDeleteTable_ThenSetsSuccessTempDataAndRedirects()
     {
         _builder.DynamoDB
             .Setup(d => d.DeleteTableAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -197,7 +197,7 @@ public class ServicesControllerTests
     // ─── SQS ─────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task SQS_ReturnsViewWithQueues()
+    public async Task GivenQueues_WhenSQS_ThenReturnsViewWithQueues()
     {
         _builder.SQS
             .Setup(s => s.ListQueuesAsync(It.IsAny<ListQueuesRequest>(), It.IsAny<CancellationToken>()))
@@ -211,7 +211,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task CreateQueue_OnSuccess_SetsTempDataAndRedirects()
+    public async Task GivenCreateQueueSucceeds_WhenCreateQueue_ThenSetsSuccessTempDataAndRedirects()
     {
         _builder.SQS
             .Setup(s => s.CreateQueueAsync(It.IsAny<CreateQueueRequest>(), It.IsAny<CancellationToken>()))
@@ -226,7 +226,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task DeleteQueue_OnSuccess_SetsTempDataAndRedirects()
+    public async Task GivenDeleteQueueSucceeds_WhenDeleteQueue_ThenSetsSuccessTempDataAndRedirects()
     {
         _builder.SQS
             .Setup(s => s.DeleteQueueAsync(It.IsAny<DeleteQueueRequest>(), It.IsAny<CancellationToken>()))
@@ -241,7 +241,7 @@ public class ServicesControllerTests
     }
 
     [Fact]
-    public async Task SendMessage_OnSuccess_SetsTempDataAndRedirects()
+    public async Task GivenSendMessageSucceeds_WhenSendMessage_ThenSetsSuccessTempDataAndRedirects()
     {
         _builder.SQS
             .Setup(s => s.SendMessageAsync(It.IsAny<SendMessageRequest>(), It.IsAny<CancellationToken>()))

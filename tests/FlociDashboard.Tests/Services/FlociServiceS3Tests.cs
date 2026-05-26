@@ -11,7 +11,7 @@ public class FlociServiceS3Tests
     private readonly FlociServiceBuilder _builder = new();
 
     [Fact]
-    public async Task ListBucketsAsync_ReturnsMappedBuckets()
+    public async Task GivenBucketsAndObjects_WhenListBucketsAsync_ThenReturnsMappedBuckets()
     {
         _builder.S3
             .Setup(s => s.ListBucketsAsync(It.IsAny<CancellationToken>()))
@@ -38,7 +38,7 @@ public class FlociServiceS3Tests
     }
 
     [Fact]
-    public async Task ListBucketsAsync_WhenObjectListingFails_StillReturnsBucketWithMinusOne()
+    public async Task GivenObjectListingFails_WhenListBucketsAsync_ThenReturnsBucketWithMinusOneCount()
     {
         _builder.S3
             .Setup(s => s.ListBucketsAsync(It.IsAny<CancellationToken>()))
@@ -60,7 +60,7 @@ public class FlociServiceS3Tests
     }
 
     [Fact]
-    public async Task ListBucketsAsync_WhenNoBuckets_ReturnsEmptyList()
+    public async Task GivenNoBuckets_WhenListBucketsAsync_ThenReturnsEmptyList()
     {
         _builder.S3
             .Setup(s => s.ListBucketsAsync(It.IsAny<CancellationToken>()))
@@ -73,7 +73,7 @@ public class FlociServiceS3Tests
     }
 
     [Fact]
-    public async Task CreateBucketAsync_CallsPutBucketWithCorrectName()
+    public async Task GivenBucketName_WhenCreateBucketAsync_ThenCallsPutBucketWithCorrectName()
     {
         _builder.S3
             .Setup(s => s.PutBucketAsync(It.IsAny<PutBucketRequest>(), It.IsAny<CancellationToken>()))
@@ -88,7 +88,7 @@ public class FlociServiceS3Tests
     }
 
     [Fact]
-    public async Task DeleteBucketAsync_CallsDeleteBucketWithCorrectName()
+    public async Task GivenBucketName_WhenDeleteBucketAsync_ThenCallsDeleteBucketWithCorrectName()
     {
         _builder.S3
             .Setup(s => s.DeleteBucketAsync(It.IsAny<DeleteBucketRequest>(), It.IsAny<CancellationToken>()))
@@ -103,7 +103,7 @@ public class FlociServiceS3Tests
     }
 
     [Fact]
-    public async Task ListObjectsAsync_ReturnsMappedObjects()
+    public async Task GivenBucketWithObjects_WhenListObjectsAsync_ThenReturnsMappedObjects()
     {
         var lastModified = DateTime.UtcNow;
 
@@ -124,7 +124,7 @@ public class FlociServiceS3Tests
     }
 
     [Fact]
-    public async Task ListObjectsAsync_PassesPrefixToRequest()
+    public async Task GivenPrefix_WhenListObjectsAsync_ThenPassesPrefixToRequest()
     {
         _builder.S3
             .Setup(s => s.ListObjectsV2Async(It.IsAny<ListObjectsV2Request>(), It.IsAny<CancellationToken>()))
@@ -139,7 +139,7 @@ public class FlociServiceS3Tests
     }
 
     [Fact]
-    public async Task DeleteObjectAsync_CallsDeleteWithCorrectBucketAndKey()
+    public async Task GivenBucketAndKey_WhenDeleteObjectAsync_ThenCallsDeleteWithCorrectValues()
     {
         _builder.S3
             .Setup(s => s.DeleteObjectAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
