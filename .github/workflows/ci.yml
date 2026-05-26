@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore packages
+        run: dotnet restore ../tests/FlociDashboard.Tests/FlociDashboard.Tests.csproj
+        working-directory: src
+
+      - name: Build solution
+        run: dotnet build ../tests/FlociDashboard.Tests/FlociDashboard.Tests.csproj --configuration Release --no-restore
+        working-directory: src
+
+      - name: Run unit tests
+        run: dotnet test ../tests/FlociDashboard.Tests/FlociDashboard.Tests.csproj --configuration Release --no-build --verbosity normal
+        working-directory: src
